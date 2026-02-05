@@ -1,7 +1,8 @@
 import LineObject from '@/assets/lines.svg'
 import LeftContainer from '@/assets/container.svg'
 import TripsCard from '@/assets/trips-card.svg'
-import { Phone } from 'lucide-react'
+import Andriod from '@/assets/icons/andriod.svg'
+import Phone from '@/assets/icons/phone.svg'
 import Sara from '@/assets/icons/testimonials/sara.png'
 import Khaled from '@/assets/icons/testimonials/mohamed.png'
 import Ahmed from '@/assets/icons/testimonials/ahmed.png'
@@ -14,7 +15,7 @@ export default function Hero() {
             }}>
         <div className='flex flex-col gap-4'>
             <h2 className="font-bold text-5xl">
-                دليلك الشامل <br /><span className="text-primary">للأوراق الرسمية</span>
+                دليلك الشامل <br /><span className="text-primary">لمشاويرك الحكومية</span>
             </h2>
             <img src={LineObject} />
             
@@ -24,24 +25,26 @@ export default function Hero() {
                 {/* Downloading buttons */}
                 <div className='flex gap-2 mt-6 items-center'>
                     <button className='shadow-xl bg-black text-white flex items-center gap-4 rounded-full px-7 py-1'>
+                        <img src={Phone} alt="" />
                         <div>
-                            <Phone />
-                        </div>
-                        <div>
-                            حمله من
+                            <span className='text-sm'>
+                                حمله من
+                            </span>
                             <br />
                             <span>App Store</span>
                         </div>
                     </button>
 
-                    <button className='shadow-xl bg-primary text-white flex items-center gap-4 rounded-full px-7 py-1'>
+                    <button className='shadow-xl bg-white flex items-center gap-4 rounded-full px-7 py-1'>
                         <div>
-                            <Phone />
+                            <img src={Andriod} />
                         </div>
                         <div>
-                            حمله من
+                            <span className='text-sm'>
+                                حمله من
+                            </span>
                             <br />
-                            <span>Google Play</span>
+                            <span className='font-bold'>Google Play</span>
                         </div>
                     </button>
                 </div>
