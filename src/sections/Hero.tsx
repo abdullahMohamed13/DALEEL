@@ -1,5 +1,5 @@
 import LineObject from '@/assets/lines.svg'
-import LeftContainer from '@/assets/Container.svg'
+import LeftContainer from '@/assets/container.svg'
 import TripsCard from '@/assets/trips-card.svg'
 import { Phone } from 'lucide-react'
 import Sara from '@/assets/icons/testimonials/sara.png'
