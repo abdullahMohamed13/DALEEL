@@ -17,7 +17,7 @@ export default function Header() {
                 <p className="font-bold text-xl">دليل</p>
                 <p className="text-sm">Daleel</p>
             </div>
-            <img src="/logo.png" alt="" />
+            <img src="/main-logo.svg" alt="" />
         </Link>
 
         <ul className="flex gap-6 items-center">

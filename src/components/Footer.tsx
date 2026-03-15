@@ -10,7 +10,7 @@ export default function Footer() {
                     <p className="font-bold text-xl">دليل</p>
                     <p className="text-sm">Daleel</p>
                 </div>
-                <img src="/logo.png" alt="" />
+                <img src="/main-logo.svg" alt="" />
             </Link>
 
             <div>
