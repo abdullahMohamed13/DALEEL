@@ -22,10 +22,10 @@ Each team works **only inside their folder**, on **their own branch**. Do not to
 
 | Team       | Branch     | Folder      |
 |------------|------------|-------------|
-| Frontend   | `frontend` | `frontend/` |
-| Backend    | `backend`  | `backend/`  |
-| AI         | `ai`       | `ai/`       |
-| Mobile     | `mobile`   | `mobile/`   | -->
+| Frontend   | `feat/frontend` | `frontend/` |
+| Backend    | `feat/backend`  | `backend/`  |
+| AI         | `feat/ai`       | `ai/`       |
+| Mobile     | `feat/mobile`   | `mobile/`   | -->
 
 > ⚠️ **Never push directly to `main`.** Only the project owner merges into `main` via Pull Requests.
 
@@ -44,13 +44,13 @@ cd DALEEL
 
 ```bash
 # Backend team
-git checkout backend
+git checkout feat/backend
 
 # AI team
-git checkout ai
+git checkout feat/ai
 
 # Mobile team
-git checkout mobile
+git checkout feat/mobile
 ```
 
 ### 3. Confirm you're on the right branch
@@ -70,7 +70,7 @@ Follow these steps **every time** you want to push your work.
 
 ```bash
 git pull origin <your-branch>
-# Example: git pull origin backend
+# Example: git pull origin feat/backend
 ```
 
 > Always do this before starting to avoid conflicts.
@@ -85,7 +85,7 @@ Make sure all your files are inside your designated folder (e.g., `backend/`). D
 git add .
 git commit -m "feat: short description of what you did"
 git push origin <your-branch>
-# Example: git push origin backend
+# Example: git push origin feat/backend
 ```
 
 ---
