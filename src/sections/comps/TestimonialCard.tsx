@@ -4,7 +4,7 @@ export default function TestimonialCard({img, name, review, rating}: {img: strin
     return <div className="bg-[#F5F5F5] rounded-2xl py-4 px-4">
         <div className="flex gap-4 items-center">
             <div className="rounded-full mt-4">
-                <img src={img} />
+                <img src={img} className="rounded-full" width={60} height={60} />
             </div>
             <div className="flex flex-col">
                 <h4 className="text-lg font-bold mt-7 mb-3">{name}</h4>

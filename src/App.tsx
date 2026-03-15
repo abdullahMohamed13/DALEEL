@@ -1,28 +1,31 @@
-import Footer from "./components/Footer";
-import Header from "./components/Header";
-// import About from "./sections/About";
-import Contact from "./sections/Contact";
-import Features from "./sections/Features";
-import Hero from "./sections/Hero";
-import Testimonials from "./sections/Testimonials";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Layout from "./components/Layout";
+import Home from "./pages/Home";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Terms from "./pages/Terms";
+import FAQ from "./pages/FAQ";
+import Support from "./pages/Support";
+import { Toaster } from "@/components/ui/sonner"
+
+const toasterStyle: React.CSSProperties & Record<string, string> = {
+  "--normal-bg": "var(--primary)",
+  "--normal-text": "white",
+  "--normal-border": "var(--border)",
+};
 
 export default function App() {
   return (
-    <main className="my-8">
-      <Header />
-      <div className="mx-6 flex flex-col items-center gap-15 md:gap-25">
-        <div className="mx-6 *:flex *:items-center">
-          <Hero />
-          <Features />
-        </div>
-        
-        {/* <About /> */}
-        <div className="mx-6 *:flex *:flex-col *:items-center">
-          <Testimonials />
-          <Contact />
-        </div>
-      </div>
-      <Footer />
-    </main>
-  )
+    <Router>
+      <Toaster duration={4500} style={toasterStyle} />
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="terms" element={<Terms />} />
+          <Route path="faq" element={<FAQ />} />
+          <Route path="support" element={<Support />} />
+        </Route>
+      </Routes>
+    </Router>
+  );
 }

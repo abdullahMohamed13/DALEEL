@@ -1,7 +1,7 @@
 import FeaturesCard from "./comps/FeaturesCard";
-import DocumentIcon from '@/assets/icons/features/document.svg'
-import LocationIcon from '@/assets/icons/features/location.svg'
-import GroupIcon from '@/assets/icons/features/group.svg'
+import DocumentIcon from '@/assets/features/document.svg'
+import LocationIcon from '@/assets/features/location.svg'
+import GroupIcon from '@/assets/features/group.svg'
 
 export default function Features() {
     return <section className="flex-col items-center" id="features">
@@ -14,7 +14,7 @@ export default function Features() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mt-20">
             <FeaturesCard
                 icon={DocumentIcon}
-                header="أوراقك الحكومية، واضحة"
+                header="أوراقك الحكومية.. واضحة"
                 body="قائمة شاملة ومحدثة بجميع المستندات المطلوبة للمعاملات الحكومية لتجنب التعب والمشاوير الزائدة والانتظار الطويل."
             />
             <FeaturesCard

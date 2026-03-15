@@ -6,7 +6,7 @@ function StarIcon({ filled }: { filled?: boolean }) {
     <Star
       className={cn(
         "size-5 shrink-0",
-        filled ? "text-amber-500" : "text-border",
+        filled ? "text-primary" : "text-border",
       )}
       fill="currentColor"
     />
