@@ -37,9 +37,9 @@ export default function Header() {
                 </a>
             </li>
             <li>
-                <a href="/support" className="hover:text-primary transition-colors">
+                <Link to="/support" className="hover:text-primary transition-colors">
                     تواصل معنا
-                </a>
+                </Link>
             </li>
         </ul>
 
