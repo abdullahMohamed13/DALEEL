@@ -7,7 +7,8 @@ import re
 import faiss
 import numpy as np
 from sentence_transformers import SentenceTransformer
-
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 # ===============================
 # Language Detection
 # ===============================
@@ -521,31 +522,28 @@ app.add_middleware(
 async def startup_event():
     global model, index, ALL_QUERIES
 
-    model = SentenceTransformer("all-MiniLM-L6-v2")
-    texts = []
-    for item in RAW_DATASET:
-        for q in item["queries"]:
-            texts.append(q)
-    embeddings = model.encode(texts, convert_to_numpy=True)
-    dim = embeddings.shape[1]
-    faiss.normalize_L2(embeddings)
-    idx = faiss.IndexFlatIP(dim)
-    idx.add(embeddings)
-    index = idx
-    ALL_QUERIES = texts
+    loop = asyncio.get_event_loop()
+    executor = ThreadPoolExecutor()
 
-    print("\n" + "="*60)
-    print("🚀 Daleel – AI Government Service Guide")
-    print("="*60)
-    print("\n📍 API Endpoints:")
-    print("   • Base URL:           http://localhost:8000")
-    print("   • Swagger Docs:       http://localhost:8000/docs ✨")
-    print("   • ReDoc:              http://localhost:8000/redoc")
-    print("\n📝 Example Requests:")
-    print("   • Arabic:  http://localhost:8000/service?query=عايز استخرج بطاقة")
-    print("   • English: http://localhost:8000/service?query=I want a new ID")
-    print("\n✅ Model loaded and server is ready!")
-    print("="*60 + "\n")
+    def load():
+        global model, index, ALL_QUERIES
+        m = SentenceTransformer("all-MiniLM-L6-v2")
+        texts = []
+        for item in RAW_DATASET:
+            for q in item["queries"]:
+                texts.append(q)
+        embeddings = m.encode(texts, convert_to_numpy=True)
+        dim = embeddings.shape[1]
+        faiss.normalize_L2(embeddings)
+        idx = faiss.IndexFlatIP(dim)
+        idx.add(embeddings)
+        model = m
+        index = idx
+        ALL_QUERIES = texts
+        print("✅ Model loaded and ready!")
+
+    loop.run_in_executor(executor, load)
+    print("🚀 Server started, model loading in background...")
 
 # ===============================
 # RAG Retrieval
