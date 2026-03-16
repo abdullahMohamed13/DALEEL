@@ -477,27 +477,29 @@ RAW_DATASET = [
 # ===============================
 # Prepare embeddings and FAISS index
 # ===============================
-model = SentenceTransformer("all-MiniLM-L6-v2")
+# model = SentenceTransformer("all-MiniLM-L6-v2")
 
-# Build FAISS Index
-texts = []
-for item in RAW_DATASET:
-    for q in item["queries"]:
-        texts.append(q)
+# # Build FAISS Index
+# texts = []
+# for item in RAW_DATASET:
+#     for q in item["queries"]:
+#         texts.append(q)
 
-EMBEDDINGS = model.encode(texts, convert_to_numpy=True)
-dim = EMBEDDINGS.shape[1]
+# EMBEDDINGS = model.encode(texts, convert_to_numpy=True)
+# dim = EMBEDDINGS.shape[1]
 
-index = faiss.IndexFlatIP(dim)
-faiss.normalize_L2(EMBEDDINGS)
-index.add(EMBEDDINGS)
-ALL_QUERIES = texts
+# index = faiss.IndexFlatIP(dim)
+# faiss.normalize_L2(EMBEDDINGS)
+# index.add(EMBEDDINGS)
+# ALL_QUERIES = texts
+
+# 1. Globals
+model = None
+index = None
+ALL_QUERIES = []
 
 # ===============================
-# RAG Retrieval
-# ===============================
-
-# ===============================
+# 2. App definition
 # FastAPI App
 # ===============================
 app = FastAPI(
@@ -514,12 +516,24 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-# ===============================
-# Startup Event
-# ===============================
+# 3. Startup event
 @app.on_event("startup")
 async def startup_event():
-    """Log API information on startup"""
+    global model, index, ALL_QUERIES
+
+    model = SentenceTransformer("all-MiniLM-L6-v2")
+    texts = []
+    for item in RAW_DATASET:
+        for q in item["queries"]:
+            texts.append(q)
+    embeddings = model.encode(texts, convert_to_numpy=True)
+    dim = embeddings.shape[1]
+    faiss.normalize_L2(embeddings)
+    idx = faiss.IndexFlatIP(dim)
+    idx.add(embeddings)
+    index = idx
+    ALL_QUERIES = texts
+
     print("\n" + "="*60)
     print("🚀 Daleel – AI Government Service Guide")
     print("="*60)
@@ -530,8 +544,12 @@ async def startup_event():
     print("\n📝 Example Requests:")
     print("   • Arabic:  http://localhost:8000/service?query=عايز استخرج بطاقة")
     print("   • English: http://localhost:8000/service?query=I want a new ID")
-    print("\n✅ Server is running and ready to use!")
+    print("\n✅ Model loaded and server is ready!")
     print("="*60 + "\n")
+
+# ===============================
+# RAG Retrieval
+# ===============================
 
 # ===============================
 # Pydantic Models
@@ -560,6 +578,9 @@ def retrieve_service(user_query: str):
     """
     Retrieve service information based on user query using semantic search
     """
+    if model is None or index is None:
+        return None, 0.0
+    
     query_embedding = model.encode([user_query], convert_to_numpy=True)
     faiss.normalize_L2(query_embedding)
 
@@ -571,7 +592,7 @@ def retrieve_service(user_query: str):
         return None, score
 
     matched_query = ALL_QUERIES[indices[0][0]]
-
+    
     # Find the corresponding service in dataset
     for item in RAW_DATASET:
         if matched_query in item["queries"]:
