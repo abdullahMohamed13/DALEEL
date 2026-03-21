@@ -103,7 +103,7 @@ export default function Support() {
             <div>
               <p className="font-bold">اتصل بنا</p>
               <a href="tel:+201010434465" className="hover:text-primary text-muted-foreground text-sm">
-                ٢٠١٠١٠٤٣٤٤٦٥+
+                ٢٠١٠١٠٤٤٤٤٤+
               </a>
             </div>
           </div>
