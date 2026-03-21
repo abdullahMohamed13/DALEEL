@@ -1,4 +1,4 @@
-import { Star } from "@mynaui/icons-react";
+import { Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 function StarIcon({ filled }: { filled?: boolean }) {
