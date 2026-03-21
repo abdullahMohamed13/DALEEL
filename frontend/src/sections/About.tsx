@@ -6,9 +6,15 @@ import {
     CarouselPrevious,
 } from "@/components/ui/carousel"
 import AboutCard from "./comps/AboutCard";
-import ServiceImg from '@/assets/about/service1.png'
-import InteractionsImg from '@/assets/about/interaction.png'
-import NotificationsImg from '@/assets/about/notifications.png'
+
+// carousel-items images
+import ServicesScreen from '@/assets/about/services.png'
+import InteractionsScreen from '@/assets/about/reacting.png'
+import NotificationsScreen from '@/assets/about/real-time-changes.png'
+import ChatBotScreen from '@/assets/about/chatbot.png'
+import NewServiceScreen from '@/assets/about/new-service.png'
+import HomeScreen from '@/assets/about/home-screen.png'
+
 interface CarouselItem {
     id: number,
     text: {
@@ -27,25 +33,25 @@ export default function About() {
                 body: `تعرف بسهولة على جميع الوثائق والإجراءات اللازمة
 لإنهاء معاملاتك.`
             },
-            img: ServiceImg,
+            img: ServicesScreen,
         },
         {
             id: 1,
             text: {
-                header: 'تفاصيل الجهات الحكومية',
-                body: `ابحث عن مواقع وأوقات عمل وبيانات الاتصال لكل
-مصلحة حكومية.`
+                header: 'مساعد دليل الذكي',
+                body: `شات بوت ذكي يجاوبك فوراً على أي سؤال عن المعاملات
+والأوراق المطلوبة ويوجهك خطوة بخطوة.`
             },
-            img: InteractionsImg
+            img: ChatBotScreen
         },
         {
             id: 2,
             text: {
-                header: 'مشاركة المشاوير',
-                body: `شارك رحلاتك وتواصل مع مستخدمين آخرين لتوفير الوقت
-والجهد.`
+                header: 'شارك خدمة جديدة',
+                body: `زرت مصلحة حكومية؟ أضف تجربتك وشارك الأوراق المطلوبة
+مع المجتمع ليستفيد الجميع.`
             },
-            img: NotificationsImg
+            img: NewServiceScreen
         },
         {
             id: 3,
@@ -54,16 +60,16 @@ export default function About() {
                 body: `علّق، قيّم، وتابع المشاوير المشتركة لتحصل على أقصى
 استفادة.`
             },
-            img: InteractionsImg
+            img: InteractionsScreen
         },
         {
             id: 4,
             text: {
-                header: 'توجيه دقيق للمكان',
-                body: `احصل على توجيه دقيق للمداخل والمواقف والأماكن المزدحمة
-لتصل بسرعة وسهولة.`
+                header: 'شاشة رئيسية مريحة',
+                body: `واجهة رئيسية بسيطة وواضحة ترشدك لكل أقسام التطبيق
+وتوصلك لما تحتاجه بضغطة واحدة.`
             },
-            img: ServiceImg
+            img: HomeScreen
         },
         {
             id: 5,
@@ -72,7 +78,7 @@ export default function About() {
                 body: `ابق على اطلاع بآخر التحديثات المرورية وحالة الطرق
 من خلال مجتمعنا التفاعلي.`
             },
-            img: NotificationsImg
+            img: NotificationsScreen
         },
     ]
 
@@ -86,22 +92,18 @@ export default function About() {
                 </div>
 
                 <div className="flex gap-3">
-                    <CarouselNext className="relative z-10 inset-0 translate-y-0 translate-x-0" />
-                    <CarouselPrevious className="relative z-10 inset-0 translate-y-0 translate-x-0" />
+                    <CarouselPrevious className="relative rotate-180 z-10 inset-0 translate-y-0 translate-x-0" />
+                    <CarouselNext className="relative rotate-180 z-10 inset-0 translate-y-0 translate-x-0" />
                 </div>
             </div>
             <CarouselContent className="mt-20">
                 {
                     carouselItems.map((item) => {
                         return <CarouselItem key={item.id} className="basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4">
-                            <div className="flex items-center flex-col">
-                                <AboutCard img={item.img}/>
-                                {/* <img src={item.img} alt="Carousel Image" /> */}
-                                <div className="text-center mt-4">
-                                    <p className="font-bold text-base md:text-md">{item.text.header}</p>
-                                    <span className="text-xs md:text-sm text-muted-foreground">{item.text.body}</span>
-                                </div>
-                            </div>
+                            <AboutCard
+                                img={item.img}
+                                text={{ header: item.text.header, body: item.text.body }}
+                            />
                         </CarouselItem>
                     })
                 }
