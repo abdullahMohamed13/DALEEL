@@ -1,29 +1,29 @@
 import FeaturesCard from "./comps/FeaturesCard";
-import DocumentIcon from '@/assets/features/document.svg'
-import LocationIcon from '@/assets/features/location.svg'
-import GroupIcon from '@/assets/features/group.svg'
+import {FileText} from 'lucide-react'
+import { MdOutlineGroups, MdOutlineLocationOn } from "react-icons/md";
 
 export default function Features() {
-    return <section className="flex-col items-center" id="features">
+    const iconSize = 40;
+    return <section className="flex flex-col items-center px-4 md:px-0 text-center md:text-right" id="features">
         <div className="badge">
             مميزات التطبيق
         </div>
-        <h2 className="text-3xl mt-5 font-bold">لماذا تختار <span className="badge">دليل</span>{` `}؟</h2>
-        <p className="mt-7 text-muted">صمننا التطبيق ليحل مشاكلك اليومية، من معرفة الأوراق المطلوبة وحتى الوصول لأماكنها بدقة.</p>
+        <h2 className="text-2xl md:text-3xl mt-4 md:mt-5 font-bold">لماذا تختار <span className="badge">دليل</span>{` `}؟</h2>
+        <p className="mt-4 md:mt-7 text-sm md:text-base text-muted max-w-2xl px-2 md:px-0">صمننا التطبيق ليحل مشاكلك اليومية، من معرفة الأوراق المطلوبة وحتى الوصول لأماكنها بدقة.</p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mt-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10 mt-10 md:mt-20">
             <FeaturesCard
-                icon={DocumentIcon}
+                icon={<FileText size={iconSize} />}
                 header="أوراقك الحكومية.. واضحة"
                 body="قائمة شاملة ومحدثة بجميع المستندات المطلوبة للمعاملات الحكومية لتجنب التعب والمشاوير الزائدة والانتظار الطويل."
             />
             <FeaturesCard
-                icon={LocationIcon}
+                icon={<MdOutlineLocationOn size={iconSize} />}
                 header="اوصل لوجهتك بدقة"
                 body="خرائط دقيقة ومحدثة لأهم المواقع الحكومية والخدمية، مع توجيه دقيق للمداخل والمواقف لتصل إلى وجهتك بأسرع وقت."
             />
             <FeaturesCard
-                icon={GroupIcon}
+                icon={<MdOutlineGroups size={iconSize} />}
                 header="تفاعل وشارك رحلتك"
                 body="مجتمع تفاعلي يتيح لك مشاركة تفاصيل رحلاتك، حالة الطرق، والاستفادة من تجارب ونصائح الاخرين في الوقت الفعلي."
             />

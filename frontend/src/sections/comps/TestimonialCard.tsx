@@ -1,7 +1,7 @@
 import { StarRating } from "@/components/ui/rating1";
 
 export default function TestimonialCard({img, name, review, rating}: {img: string, name: string, review: string, rating: number}) {
-    return <div className="bg-[#F5F5F5] rounded-2xl py-4 px-4">
+    return <div className="animated-card bg-[#F5F5F5] rounded-2xl py-4 px-4">
         <div className="flex gap-4 items-center">
             <div className="rounded-full mt-4">
                 <img src={img} className="rounded-full" width={60} height={60} />

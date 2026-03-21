@@ -4,9 +4,9 @@ import Khaled from '@/assets/testimonials/mohamed.png'
 import Abdelaziz from '@/assets/testimonials/abdelaziz.jpeg'
 
 export default function Testimonials() {
-    return <section>
-        <h3 className="text-3xl font-bold">ماذا يقول مستخدمو <span className="text-primary">دليل</span> {` `}؟</h3>
-        <div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+    return <section className="px-4 md:px-0">
+        <h3 className="text-2xl md:text-3xl font-bold text-center md:text-right">ماذا يقول مستخدمو <span className="text-primary">دليل</span>؟</h3>
+        <div className="mt-8 md:mt-10 grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-10">
             <TestimonialCard
                 img={Abdelaziz}
                 name="عبدالعزيز عمر"

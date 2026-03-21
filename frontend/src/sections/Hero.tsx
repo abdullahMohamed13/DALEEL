@@ -7,9 +7,8 @@ import Khaled from '@/assets/testimonials/mohamed.png'
 import Abdelaziz from '@/assets/testimonials/abdelaziz.jpeg'
 
 // Dynamic Floating Elements
-import DocumentIcon from '@/assets/features/document.svg'
-import LocationIcon from '@/assets/features/location.svg'
-import GroupIcon from '@/assets/features/group.svg'
+import {FileText} from 'lucide-react'
+import { MdOutlineGroups, MdOutlineLocationOn } from "react-icons/md";
 
 // The Floating Icon Component for depth
 const FloatingElement = ({ 
@@ -91,7 +90,7 @@ export default function Hero() {
     return (
         <section 
             id="hero" 
-            className="relative min-h-[90vh] mb-15 md:mb-0 pb-10 md:pb:0 flex items-center justify-center overflow-hidden perspective-[1500px]"
+            className="relative min-h-[90vh] mb-[60px] md:mb-0 pb-10 md:pb-0 flex items-center justify-center overflow-hidden perspective-[1500px]"
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
         >
@@ -113,13 +112,13 @@ export default function Hero() {
 
             {/* Floating Contextual Elements */}
             <FloatingElement xOffset={smoothX} yOffset={smoothY} zDepth={120} top="20%" left="15%" delay={0.2}>
-                <img src={DocumentIcon} alt="Document" className="w-12 h-12" />
+                <FileText size={45} color='var(--primary)' />
             </FloatingElement>
             <FloatingElement xOffset={smoothX} yOffset={smoothY} zDepth={-80} top="5%" left="75%" delay={1.2}>
-                <img src={LocationIcon} alt="Location" className="w-16 h-16" />
+                <MdOutlineLocationOn size={45} color='var(--primary)' />
             </FloatingElement>
             <FloatingElement xOffset={smoothX} yOffset={smoothY} zDepth={60} top="70%" left="8%" delay={0.8}>
-                <img src={GroupIcon} alt="Community" className="w-14 h-14" />
+                <MdOutlineGroups size={45} color='var(--primary)' />
             </FloatingElement>
 
             {/* Central 3D Platform */}
@@ -136,10 +135,10 @@ export default function Hero() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8 }}
                     style={{ transform: "translateZ(50px)" }}
-                    className='flex flex-col items-center text-center gap-6 bg-white/40 backdrop-blur-3xl p-10 md:p-16 rounded-[40px] shadow-2xl border border-white/60'
+                    className='flex flex-col items-center text-center gap-4 sm:gap-6 bg-white/40 backdrop-blur-3xl p-6 sm:p-10 md:p-16 rounded-[2rem] sm:rounded-[40px] shadow-2xl border border-white/60'
                 >
                     <motion.div style={{ transform: "translateZ(80px)" }} className="relative">
-                        <h2 className="font-extrabold text-5xl md:text-7xl leading-tight">
+                        <h2 className="font-extrabold text-4xl sm:text-5xl md:text-7xl leading-tight">
                             دليلك الشامل <br />
                             <span className="text-primary bg-clip-text text-transparent bg-gradient-to-l from-primary to-[#23A05D]">
                                 لمشاويرك الحكومية
@@ -157,14 +156,14 @@ export default function Hero() {
                     
                     <motion.p 
                         style={{ transform: "translateZ(60px)" }}
-                        className="text-lg md:text-xl text-muted-foreground mt-6 max-w-2xl"
+                        className="text-base sm:text-lg md:text-xl text-muted-foreground mt-4 sm:mt-6 max-w-2xl px-2 sm:px-0"
                     >
                         كل ما تحتاجه لإنجاز معاملاتك الحكومية بسهولة، والوصول إلى جهتك بدقة عالية، ومشاركة كل التفاصيل مع مجتمع تفاعلي في تطبيق واحد.
                     </motion.p>
 
                     <motion.div 
                         style={{ transform: "translateZ(40px)" }}
-                        className='flex flex-col sm:flex-row gap-5 mt-10 items-center bg-gray-50/50 p-3 pr-6 rounded-full border border-gray-100'
+                        className='flex flex-col sm:flex-row gap-4 sm:gap-5 mt-8 sm:mt-10 items-center bg-gray-50/50 p-4 sm:p-3 sm:pr-6 rounded-3xl sm:rounded-full border border-gray-100'
                     >
                         <div className='flex'>
                             <img src={Sara} alt="User" className='w-10 h-10 rounded-full border-2 border-white -ml-4 shadow-sm' />

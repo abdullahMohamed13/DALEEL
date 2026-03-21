@@ -30,11 +30,11 @@ export default function FAQ() {
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 1.05 }}
       transition={{ duration: 0.5 }}
-      className="container mx-auto px-6 py-12 mt-8 max-w-3xl"
+      className="container mx-auto px-4 md:px-6 py-8 md:py-12 mt-4 md:mt-8 max-w-3xl"
     >
       <div className="text-center mb-12">
         <h1 className="text-4xl md:text-5xl font-bold mb-4 text-primary">الأسئلة الشائعة</h1>
-        <p className="text-muted-foreground text-lg">
+        <p className="text-muted-foreground text-base md:text-lg px-2 md:px-0">
           ابحث عن إجابات لاستفساراتك حول كيفية استخدام تطبيق دليل وتسهيل معاملاتك الحكومية.
         </p>
       </div>
@@ -50,7 +50,7 @@ export default function FAQ() {
           >
             <button
               onClick={() => setOpenIndex(openIndex === index ? null : index)}
-              className="w-full flex justify-between items-center p-6 text-right font-bold focus:outline-none"
+              className="w-full flex justify-between items-center p-4 md:p-6 text-right font-bold focus:outline-none text-sm md:text-base"
             >
               <span>{faq.question}</span>
               <motion.div
@@ -68,7 +68,7 @@ export default function FAQ() {
                   exit={{ height: 0, opacity: 0 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <div className="p-6 pt-0 text-muted-foreground leading-relaxed">
+                  <div className="p-4 md:p-6 pt-0 text-muted-foreground leading-relaxed text-sm md:text-base">
                     {faq.answer}
                   </div>
                 </motion.div>
