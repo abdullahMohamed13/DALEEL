@@ -65,7 +65,7 @@ body {
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
---primary: #2ECC76;
+  --primary: #2ECC76;
   --primary-background: #2ECC761A;
   --primary-foreground: oklch(0.985 0 0);
   --secondary: #379777;
@@ -100,9 +100,22 @@ body {
   button {
     @apply cursor-pointer
   }
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
+.animated-card {
+  transition: transform 300ms ease, box-shadow 300ms ease;
+}
 
-.badge {
-  @apply text-primary rounded-2xl bg-primary-background w-fit py-0.5 px-2
+.animated-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+@layer utilities {
+  .badge {
+    @apply text-primary rounded-2xl bg-primary-background w-fit py-0.5 px-2;
+  }
 }
