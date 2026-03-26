@@ -123,7 +123,7 @@ export default function Hero() {
 
             {/* Central 3D Platform */}
             <motion.div 
-                className='relative z-10 w-full max-w-5xl mx-auto px-6'
+                className='relative z-10 w-full max-w-5xl mx-auto'
                 style={{
                     rotateX,
                     rotateY,
@@ -140,7 +140,7 @@ export default function Hero() {
                     <motion.div style={{ transform: "translateZ(80px)" }} className="relative">
                         <h2 className="font-extrabold text-4xl sm:text-5xl md:text-7xl leading-tight">
                             دليلك الشامل <br />
-                            <span className="text-primary bg-clip-text text-transparent bg-gradient-to-l from-primary to-[#23A05D]">
+                            <span className="bg-clip-text text-transparent bg-gradient-to-l from-primary to-secondary">
                                 لمشاويرك الحكومية
                             </span>
                         </h2>
