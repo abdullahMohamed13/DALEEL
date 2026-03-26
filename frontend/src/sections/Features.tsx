@@ -4,7 +4,7 @@ import { MdOutlineGroups, MdOutlineLocationOn } from "react-icons/md";
 
 export default function Features() {
     const iconSize = 40;
-    return <section className="flex flex-col items-center px-4 md:px-0 text-center md:text-right" id="features">
+    return <section className="flex flex-col items-center text-center md:text-right" id="features">
         <div className="badge">
             مميزات التطبيق
         </div>
