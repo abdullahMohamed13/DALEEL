@@ -116,7 +116,7 @@ export default function ChatBot() {
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
             transition={{ type: "spring", stiffness: 260, damping: 20 }}
-            className="fixed bottom-6 right-6 z-[999]"
+            className="fixed bottom-6 right-6 z-999"
           >
             <Button
               onClick={() => setIsOpen(true)}
@@ -137,8 +137,8 @@ export default function ChatBot() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 40, scale: 0.9 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[999]
-                       w-[calc(100vw-2rem)] sm:w-[400px] h-[70vh] sm:h-[520px] max-h-[85vh]
+            className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-999
+                       w-[calc(100vw-2rem)] sm:w-100 h-[70vh] sm:h-130 max-h-[85vh]
                        bg-white rounded-2xl shadow-2xl border border-gray-100
                        flex flex-col overflow-hidden"
           >
@@ -155,7 +155,7 @@ export default function ChatBot() {
                   </AvatarFallback>
                 </Avatar>
                 <div className="text-white">
-                  <p className="font-bold text-base leading-tight">مساعد دليل</p>
+                  <p className="font-bold text-base leading-tight">مساعد دليل الذكي</p>
                   <p className="text-xs text-white/70">متصل الآن</p>
                 </div>
               </div>
@@ -244,10 +244,10 @@ export default function ChatBot() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="اكتب رسالتك..."
+                  placeholder="اكتب رسالتك"
                   className="flex-1 bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm 
                              focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50
-                             placeholder:text-muted-foreground/60 font-sans transition-shadow"
+                             placeholder:text-muted-foreground/60 transition-shadow"
                   disabled={isTyping}
                 />
                 <Button
