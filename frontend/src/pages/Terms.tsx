@@ -7,7 +7,7 @@ export default function Terms() {
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 30 }}
       transition={{ duration: 0.5 }}
-      className="container mx-auto px-4 md:px-6 py-8 md:py-12 mt-4 md:mt-8 max-w-4xl"
+      className="container mx-auto px-4 md:px-6 py-8 md:py-12 max-w-4xl"
     >
       <motion.div
         className="bg-white rounded-3xl p-6 sm:p-8 md:p-12 shadow-2xl shadow-primary/5 border border-primary/10 relative overflow-hidden"
@@ -15,7 +15,7 @@ export default function Terms() {
         {/* Decorative background circle */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl pointer-events-none" />
         
-        <h1 className="text-4xl md:text-5xl font-bold mb-8">الشروط والأحكام</h1>
+        <h1 className="text-4xl md:text-5xl font-bold mb-8 text-primary">الشروط والأحكام</h1>
 
         <div className="space-y-6 md:space-y-8 text-muted-foreground leading-relaxed relative z-10 text-sm md:text-base">
           <motion.section

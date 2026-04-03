@@ -30,7 +30,7 @@ export default function Header() {
                     </a>
                 </li>
                 <li>
-                    <a href={getHref("#about")} className={linkClass} onClick={onClick}>
+                    <a href={getHref("#app-showcase")} className={linkClass} onClick={onClick}>
                         عن التطبيق
                     </a>
                 </li>

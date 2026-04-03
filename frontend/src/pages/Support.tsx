@@ -69,7 +69,7 @@ export default function Support() {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.6 }}
-      className="container mx-auto px-4 md:px-6 py-8 md:py-12 mt-4 md:mt-8 max-w-5xl"
+      className="container mx-auto px-4 md:px-6 py-8 md:py-12 max-w-5xl"
     >
       <div className="text-center mb-16">
         <h1 className="text-4xl md:text-5xl font-bold mb-4 text-primary">الدعم الفني</h1>
@@ -83,7 +83,7 @@ export default function Support() {
           initial={{ y: 50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.1, duration: 0.6, type: "spring" }}
-          className="col-span-1 border border-[#0000000D] bg-white rounded-3xl p-6 md:p-8 flex flex-col gap-6 shadow-xl shadow-primary/5"
+          className="col-span-1 border border-[#0000000D] bg-white rounded-3xl p-6 md:p-8 flex flex-col gap-6 shadow-xl"
         >
           <div className="flex items-center gap-4 text-foreground">
             <div className="bg-primary/10 p-3 rounded-full text-primary">
@@ -124,7 +124,7 @@ export default function Support() {
           initial={{ y: 50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.6, type: "spring" }}
-          className="col-span-1 md:col-span-2 border border-[#0000000D] bg-white rounded-3xl p-6 md:p-8 lg:p-12 shadow-xl shadow-primary/5"
+          className="col-span-1 md:col-span-2 border border-[#0000000D] bg-white rounded-3xl p-6 md:p-8 lg:p-12 shadow-xl"
         >
           <h2 className="text-xl md:text-2xl font-bold mb-6 md:mb-8">أرسل رسالة</h2>
           <form className="flex flex-col gap-4 md:gap-6" onSubmit={handleSubmit}>

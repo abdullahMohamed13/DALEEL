@@ -7,14 +7,17 @@ export default function PrivacyPolicy() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -30 }}
       transition={{ duration: 0.5 }}
-      className="container mx-auto px-4 md:px-6 py-8 md:py-12 mt-4 md:mt-8 max-w-4xl"
+      className="container mx-auto px-4 md:px-6 py-8 md:py-12 max-w-4xl"
     >
       <motion.div
         initial={{ scale: 0.95 }}
         animate={{ scale: 1 }}
         transition={{ duration: 0.5, delay: 0.2 }}
-        className="bg-white rounded-3xl p-6 sm:p-8 md:p-12 shadow-[0_25px_50px_-12px_hsl(var(--primary)_/_0.1)] border border-[#0000000D]"
+        className="bg-white rounded-3xl p-6 sm:p-8 md:p-12 shadow-2xl shadow-primary/5 border border-primary/10 relative overflow-hidden"
       >
+          {/* Decorative background circle */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl pointer-events-none" />
+
         <div className="badge mb-6 inline-block">تحديث: مارس 2026</div>
         <h1 className="text-4xl md:text-5xl font-bold mb-8 text-primary">سياسة الخصوصية</h1>
 

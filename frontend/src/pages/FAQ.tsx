@@ -30,7 +30,7 @@ export default function FAQ() {
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 1.05 }}
       transition={{ duration: 0.5 }}
-      className="container mx-auto px-4 md:px-6 py-8 md:py-12 mt-4 md:mt-8 max-w-3xl"
+      className="container mx-auto px-4 md:px-6 py-8 md:py-12 max-w-3xl"
     >
       <div className="text-center mb-12">
         <h1 className="text-4xl md:text-5xl font-bold mb-4 text-primary">الأسئلة الشائعة</h1>

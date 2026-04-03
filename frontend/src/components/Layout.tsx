@@ -8,7 +8,7 @@ export default function Layout() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <div className="flex-grow pt-4 md:pt-8 bg-[#FAFAFA] md:bg-white pb-4 md:pb-8">
+      <div className="flex-grow mt-4 md:mt-6 pt-4 md:pt-8 pb-4 md:pb-8">
         <AnimatePresence mode="wait">
           <Outlet />
         </AnimatePresence>
