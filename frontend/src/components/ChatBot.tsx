@@ -1,30 +1,14 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { BotMessageSquare, X, Send, Bot } from "lucide-react";
+import { BotMessageSquare, X, Send, Bot, FileText, ListOrdered, FileCheck } from "lucide-react";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { motion, AnimatePresence } from "framer-motion";
-
-interface Message {
-  id: number;
-  text: string;
-  sender: "user" | "bot";
-  timestamp: Date;
-}
-
-const BOT_PLACEHOLDER_REPLY = "هذا الشات بوت قيد التطوير حالياً. سيتم تفعيله قريباً لمساعدتك في استفساراتك! 🚀";
+import { useDaleelChat } from "@/hooks/useDaleelChat";
 
 export default function ChatBot() {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 0,
-      text: "أهلاً بك في دليل! 👋 كيف يمكنني مساعدتك اليوم؟",
-      sender: "bot",
-      timestamp: new Date(),
-    },
-  ]);
+  const { messages, loading: isTyping, sendMessage } = useDaleelChat();
   const [input, setInput] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const chatWindowRef = useRef<HTMLDivElement>(null);
@@ -68,28 +52,8 @@ export default function ChatBot() {
     const trimmed = input.trim();
     if (!trimmed) return;
 
-    const userMsg: Message = {
-      id: Date.now(),
-      text: trimmed,
-      sender: "user",
-      timestamp: new Date(),
-    };
-
-    setMessages((prev) => [...prev, userMsg]);
+    sendMessage(trimmed);
     setInput("");
-    setIsTyping(true);
-
-    // Simulate bot response delay
-    setTimeout(() => {
-      const botMsg: Message = {
-        id: Date.now() + 1,
-        text: BOT_PLACEHOLDER_REPLY,
-        sender: "bot",
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, botMsg]);
-      setIsTyping(false);
-    }, 1200);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -174,6 +138,18 @@ export default function ChatBot() {
               ref={scrollRef}
               className="flex-1 overflow-y-auto px-4 py-4"
             >
+              <div className="flex justify-center mb-5 mt-1">
+                <span className="text-muted-foreground/60 text-[11px] font-medium tracking-wide">
+                  {(() => {
+                    const hour = new Date().getHours();
+                    if (hour >= 4 && hour < 11) return "صباح الخير ☀️";
+                    if (hour >= 11 && hour < 15) return "يومك جميل 🌤️";
+                    if (hour >= 15 && hour < 18) return "مساء الخير 🌅";
+                    if (hour >= 18 && hour <= 23) return "أمسية سعيدة 🌙";
+                    return "ليلة هادئة 🌌";
+                  })()}
+                </span>
+              </div>
               <div className="flex flex-col gap-3">
                 {messages.map((msg) => (
                   <motion.div
@@ -194,13 +170,55 @@ export default function ChatBot() {
                       )}
                       <div>
                         <div
-                          className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
-                            msg.sender === "user"
+                          className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${msg.sender === "user"
                               ? "bg-primary text-white rounded-bl-sm"
                               : "bg-gray-100 text-foreground rounded-br-sm"
-                          }`}
+                            }`}
                         >
-                          {msg.text}
+                          {msg.data ? (
+                            <div className="flex flex-col gap-3 w-full min-w-[200px] text-right" dir="rtl">
+                              <div className="flex items-center gap-2 border-b border-primary/10 pb-2">
+                                <span className="bg-primary/10 text-primary p-1.5 rounded-lg shrink-0">
+                                  <FileText className="w-4 h-4" />
+                                </span>
+                                <div>
+                                  <h4 className="font-semibold text-primary text-sm">{msg.data.service}</h4>
+                                  <p className="text-[10px] text-muted-foreground">{msg.data.category}</p>
+                                </div>
+                              </div>
+
+                              {msg.data.steps && msg.data.steps.length > 0 && (
+                                <div>
+                                  <h5 className="text-xs font-bold text-foreground mb-1.5 flex items-center gap-1">
+                                    <ListOrdered className="w-3.5 h-3.5 text-primary" /> الخطوات
+                                  </h5>
+                                  <ol className="list-decimal list-inside text-xs space-y-1 text-foreground/80 pr-2">
+                                    {msg.data.steps.map((step: string, i: number) => (
+                                      <li key={i}>{step}</li>
+                                    ))}
+                                  </ol>
+                                </div>
+                              )}
+
+                              {msg.data.documents && msg.data.documents.length > 0 && (
+                                <div className="bg-white rounded-lg p-2.5 shadow-sm border border-gray-100">
+                                  <h5 className="text-xs font-bold text-foreground mb-1.5 flex items-center gap-1">
+                                    <FileCheck className="w-3.5 h-3.5 text-green-600" /> المستندات المطلوبة
+                                  </h5>
+                                  <ul className="space-y-1.5 pr-1">
+                                    {msg.data.documents.map((doc: string, i: number) => (
+                                      <li key={i} className="flex items-start gap-1.5 text-xs text-foreground/80">
+                                        <span className="text-green-500 mt-0.5 shrink-0">•</span>
+                                        <span>{doc}</span>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="whitespace-pre-line">{msg.text}</div>
+                          )}
                         </div>
                         <p className={`text-[10px] text-muted-foreground mt-1 ${msg.sender === "user" ? "text-left" : "text-right"}`}>
                           {formatTime(msg.timestamp)}
