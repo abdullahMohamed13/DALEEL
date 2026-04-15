@@ -1,66 +1,74 @@
+import emailjs from "@emailjs/browser";
 import { motion } from "framer-motion";
-import { Mail, Phone, MapPin } from "lucide-react";
-import emailjs from '@emailjs/browser';
+import { Mail, MapPin, Phone, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { RefreshCw } from 'lucide-react';
 
 export default function Support() {
+  const emailJsConfig = {
+    serviceId: import.meta.env.VITE_EMAILJS_SERVICE_ID,
+    templateId: import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+    publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
+  };
 
   const [form, setForm] = useState({
-    email: '',
-    name: '',
-    message: '',
+    email: "",
+    name: "",
+    message: "",
   });
-
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const isValidGmail = (email: string) => {
-    return /@gmail\.com$/i.test(email.trim());
+  const isValidEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const newErrors = {
-      name: form.name.trim() ? '' : 'الاسم مطلوب',
-      email: !form.email.trim() ? 'البريد الإلكتروني مطلوب' : !isValidGmail(form.email) ? 'أدخل بريد إلكتروني صحيح' : '',
-      message: form.message.trim() ? '' : 'الرسالة مطلوبة',
+      name: form.name.trim() ? "" : "الاسم مطلوب",
+      email: !form.email.trim()
+        ? "البريد الإلكتروني مطلوب"
+        : !isValidEmail(form.email)
+          ? "أدخل بريدًا إلكترونيًا صحيحًا"
+          : "",
+      message: form.message.trim() ? "" : "الرسالة مطلوبة",
     };
 
     if (Object.values(newErrors).some(Boolean)) {
-      const firstError = Object.values(newErrors).find(Boolean);
-      toast.error(firstError);
+      toast.error(Object.values(newErrors).find(Boolean) ?? "تحقق من الحقول المطلوبة");
       return;
-    }    
+    }
 
-    // start the spinner to tell the user it's processing
+    if (Object.values(emailJsConfig).some((value) => !value)) {
+      toast.error("إعدادات إرسال البريد غير مكتملة");
+      return;
+    }
+
     setLoading(true);
-    emailjs.sendForm(
-      import.meta.env.VITE_EMAILJS_SERVICE_ID,
-      import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
-      e.currentTarget,
-      import.meta.env.VITE_EMAILJS_PUBLIC_KEY
-    )
 
-    .then(() => {
-        setSubmitted(true);
-        // Empty all fields
-        setForm({ email: '', name: '', message: '' });
-        // Stop the spinner
-        setLoading(false);
-        setTimeout(() => setSubmitted(false), 5000);
-        toast.success('تم إرسال رسالتك بنجاح، سنتواصل معك قريباً');
-    }, () => {
-        setLoading(false);
-        toast.error('فشل إرسال الرسالة، يرجى المحاولة مرة أخرى');
-    });
+    try {
+      await emailjs.sendForm(
+        emailJsConfig.serviceId,
+        emailJsConfig.templateId,
+        e.currentTarget,
+        emailJsConfig.publicKey,
+      );
+
+      setSubmitted(true);
+      setForm({ email: "", name: "", message: "" });
+      setTimeout(() => setSubmitted(false), 5000);
+      toast.success("تم إرسال رسالتك بنجاح، سنتواصل معك قريبًا");
+    } catch {
+      toast.error("فشل إرسال الرسالة، يرجى المحاولة مرة أخرى");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -69,52 +77,63 @@ export default function Support() {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.6 }}
-      className="container mx-auto px-4 md:px-6 py-8 md:py-12 max-w-5xl"
+      className="container mx-auto max-w-5xl px-4 py-8 md:px-6 md:py-12"
     >
-      <div className="text-center mb-16">
-        <h1 className="text-4xl md:text-5xl font-bold mb-4 text-primary">الدعم الفني</h1>
-        <p className="text-muted-foreground text-base md:text-lg px-2 md:px-0">
-          فريقنا متواجد دائماً لمساعدتك في أي استفسار أو مشكلة تواجهك داخل تطبيق دليل.
+      <div className="mb-16 text-center">
+        <h1 className="mb-4 text-4xl font-bold text-primary md:text-5xl">الدعم الفني</h1>
+        <p className="px-2 text-base text-muted-foreground md:px-0 md:text-lg">
+          فريقنا متواجد دائمًا لمساعدتك في أي استفسار أو مشكلة تواجهك داخل تطبيق دليل.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
         <motion.div
           initial={{ y: 50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.1, duration: 0.6, type: "spring" }}
-          className="col-span-1 border border-[#0000000D] bg-white rounded-3xl p-6 md:p-8 flex flex-col gap-6 shadow-xl"
+          className="col-span-1 flex flex-col gap-6 rounded-3xl border border-[#0000000D] bg-white p-6 shadow-xl md:p-8"
         >
           <div className="flex items-center gap-4 text-foreground">
-            <div className="bg-primary/10 p-3 rounded-full text-primary">
-              <Mail className="w-6 h-6" />
+            <div className="rounded-full bg-primary/10 p-3 text-primary">
+              <Mail className="h-6 w-6" />
             </div>
             <div>
               <p className="font-bold">راسلنا</p>
-              <a href="mailto:daleel.support.csi@gmail.com" className="hover:text-primary text-muted-foreground text-sm">
+              <a
+                href="mailto:daleel.support.csi@gmail.com"
+                className="text-sm text-muted-foreground hover:text-primary"
+              >
                 daleel.support.csi@gmail.com
               </a>
             </div>
           </div>
+
           <div className="flex items-center gap-4 text-foreground">
-            <div className="bg-primary/10 p-3 rounded-full text-primary">
-              <Phone className="w-6 h-6" />
+            <div className="rounded-full bg-primary/10 p-3 text-primary">
+              <Phone className="h-6 w-6" />
             </div>
             <div>
               <p className="font-bold">اتصل بنا</p>
-              <a href="tel:+201010434465" className="hover:text-primary text-muted-foreground text-sm">
-                ٢٠١٠١٠٤٤٤٤٤+
+              <a
+                href="tel:+201010434465"
+                className="text-sm text-muted-foreground hover:text-primary"
+              >
+                +201010434465
               </a>
             </div>
           </div>
+
           <div className="flex items-center gap-4 text-foreground">
-            <div className="bg-primary/10 p-3 rounded-full text-primary">
-              <MapPin className="w-6 h-6" />
+            <div className="rounded-full bg-primary/10 p-3 text-primary">
+              <MapPin className="h-6 w-6" />
             </div>
             <div>
               <p className="font-bold">المقر الرئيسي</p>
-              <a href="https://maps.app.goo.gl/eLWPC9chaG3YCrCf7" className="hover:text-primary text-muted-foreground text-sm">
-                مصر، الجيزة، مدينة السادس من اكتوبر
+              <a
+                href="https://maps.app.goo.gl/eLWPC9chaG3YCrCf7"
+                className="text-sm text-muted-foreground hover:text-primary"
+              >
+                مصر، الجيزة، مدينة السادس من أكتوبر
               </a>
             </div>
           </div>
@@ -124,45 +143,50 @@ export default function Support() {
           initial={{ y: 50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.6, type: "spring" }}
-          className="col-span-1 md:col-span-2 border border-[#0000000D] bg-white rounded-3xl p-6 md:p-8 lg:p-12 shadow-xl"
+          className="col-span-1 rounded-3xl border border-[#0000000D] bg-white p-6 shadow-xl md:col-span-2 md:p-8 lg:p-12"
         >
-          <h2 className="text-xl md:text-2xl font-bold mb-6 md:mb-8">أرسل رسالة</h2>
+          <h2 className="mb-6 text-xl font-bold md:mb-8 md:text-2xl">أرسل رسالة</h2>
           <form className="flex flex-col gap-4 md:gap-6" onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <input 
-                type="text" 
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <input
+                type="text"
                 name="name"
                 value={form.name}
                 onChange={handleChange}
-                placeholder="الاسم الكامل" 
-                className="w-full bg-gray-50 border border-gray-100 p-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                placeholder="الاسم الكامل"
+                className="w-full rounded-xl border border-gray-100 bg-gray-50 p-4 transition-all focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
               <input
                 type="email"
                 name="email"
                 value={form.email}
                 onChange={handleChange}
-                placeholder="البريد الإلكتروني" 
-                className="w-full bg-gray-50 border border-gray-100 p-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                placeholder="البريد الإلكتروني"
+                className="w-full rounded-xl border border-gray-100 bg-gray-50 p-4 transition-all focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
             </div>
-            <textarea 
-              placeholder="كيف يمكننا مساعدتك؟" 
+            <textarea
+              placeholder="كيف يمكننا مساعدتك؟"
               rows={5}
               name="message"
               value={form.message}
               onChange={handleChange}
-              className="w-full bg-gray-50 border border-gray-100 p-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-none"
+              className="w-full resize-none rounded-xl border border-gray-100 bg-gray-50 p-4 transition-all focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
 
-            {/* Submitting button */}
-            <button disabled={submitted || loading} className="bg-primary text-white w-full py-4 rounded-xl font-bold shadow-lg shadow-primary/30 hover:bg-primary/80 hover:scale-101 hover:shadow-primary/50 transition-all">
-              {loading 
-                ? <RefreshCw className="animate-spin mx-auto size-5" />
-                : submitted ? 'تم إرسال الرسالة بنجاح!' : 'إرسال الرسالة'
-              }
+            <button
+              type="submit"
+              disabled={submitted || loading}
+              className="w-full rounded-xl bg-primary py-4 font-bold text-white shadow-lg shadow-primary/30 transition-all hover:scale-[1.01] hover:bg-primary/80 hover:shadow-primary/50 disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {loading ? (
+                <RefreshCw className="mx-auto size-5 animate-spin" />
+              ) : submitted ? (
+                "تم إرسال الرسالة بنجاح!"
+              ) : (
+                "إرسال الرسالة"
+              )}
             </button>
-
           </form>
         </motion.div>
       </div>

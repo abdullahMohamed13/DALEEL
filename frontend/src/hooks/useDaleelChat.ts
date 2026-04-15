@@ -90,7 +90,7 @@ export function useDaleelChat() {
         ...prev,
         { id: Date.now() + 1, sender: "bot", text: replyText, timestamp: new Date(), data: serviceData },
       ]);
-    } catch (err) {
+    } catch {
       setError("تعذر الاتصال بالخادم. تحقق من اتصالك بالإنترنت.");
       setMessages((prev) => [
         ...prev,
