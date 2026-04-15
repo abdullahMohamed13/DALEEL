@@ -1,4 +1,4 @@
-import React, { type MouseEvent } from 'react';
+import { useEffect, useState, type MouseEvent } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 
 import LineObject from '@/assets/lines.svg'
@@ -7,56 +7,56 @@ import Khaled from '@/assets/testimonials/mohamed.png'
 import Abdelaziz from '@/assets/testimonials/abdelaziz.jpeg'
 
 // Dynamic Floating Elements
-import {FileText} from 'lucide-react'
-import { MdOutlineGroups, MdOutlineLocationOn } from "react-icons/md";
+// import {FileText} from 'lucide-react'
+// import { MdOutlineGroups, MdOutlineLocationOn } from "react-icons/md";
 
 import { SVG3D } from "3dsvg";
 
 // The Floating Icon Component for depth
-const FloatingElement = ({ 
-    children, 
-    xOffset, 
-    yOffset, 
-    zDepth,
-    top,
-    left,
-    delay
-}: { 
-    children: React.ReactNode, 
-    xOffset: any, 
-    yOffset: any, 
-    zDepth: number,
-    top: string,
-    left: string,
-    delay: number
-}) => {
-    // Parallax logic based on distance
-    const moveX = useTransform(xOffset, [-0.5, 0.5], [-zDepth, zDepth]);
-    const moveY = useTransform(yOffset, [-0.5, 0.5], [-zDepth, zDepth]);
+// const FloatingElement = ({ 
+//     children, 
+//     xOffset, 
+//     yOffset, 
+//     zDepth,
+//     top,
+//     left,
+//     delay
+// }: { 
+//     children: React.ReactNode, 
+//     xOffset: any, 
+//     yOffset: any, 
+//     zDepth: number,
+//     top: string,
+//     left: string,
+//     delay: number
+// }) => {
+//     // Parallax logic based on distance
+//     const moveX = useTransform(xOffset, [-0.5, 0.5], [-zDepth, zDepth]);
+//     const moveY = useTransform(yOffset, [-0.5, 0.5], [-zDepth, zDepth]);
 
-    return (
-        <motion.div 
-            initial={{ opacity: 0, scale: 0, y: 50 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 1, delay, type: "spring", bounce: 0.4 }}
-            className="absolute hidden md:block" // Hidden on small screens to avoid clutter
-            style={{ 
-                top, 
-                left, 
-                x: moveX, 
-                y: moveY,
-                zIndex: zDepth > 50 ? 20 : 0
-            }}
-        >
-            <div className={`p-4 rounded-2xl bg-white shadow-2xl border border-gray-100/50 backdrop-blur-md flex items-center justify-center`}
-                 style={{ 
-                    transform: `translateZ(${zDepth}px) rotateY(${zDepth * 0.1}deg) rotateX(${-zDepth * 0.1}deg)`,
-                 }}>
-                {children}
-            </div>
-        </motion.div>
-    );
-};
+//     return (
+//         <motion.div 
+//             initial={{ opacity: 0, scale: 0, y: 50 }}
+//             animate={{ opacity: 1, scale: 1, y: 0 }}
+//             transition={{ duration: 1, delay, type: "spring", bounce: 0.4 }}
+//             className="absolute hidden md:block" // Hidden on small screens to avoid clutter
+//             style={{ 
+//                 top, 
+//                 left, 
+//                 x: moveX, 
+//                 y: moveY,
+//                 zIndex: zDepth > 50 ? 20 : 0
+//             }}
+//         >
+//             <div className={`p-4 rounded-2xl bg-white shadow-2xl border border-gray-100/50 backdrop-blur-md flex items-center justify-center`}
+//                  style={{ 
+//                     transform: `translateZ(${zDepth}px) rotateY(${zDepth * 0.1}deg) rotateX(${-zDepth * 0.1}deg)`,
+//                  }}>
+//                 {children}
+//             </div>
+//         </motion.div>
+//     );
+// };
 
 export default function Hero() {
     // Global mouse tracking
@@ -107,6 +107,12 @@ export default function Hero() {
             <path d="M43.6647 27.3136C46.0592 27.3136 48.0003 25.4425 48.0003 23.1343C48.0003 20.8262 46.0592 18.9551 43.6647 18.9551C41.2702 18.9551 39.3291 20.8262 39.3291 23.1343C39.3291 25.4425 41.2702 27.3136 43.6647 27.3136Z" fill="#379777"/>
         </svg>`;
 
+    const [showSvg, setShowSvg] = useState(false);
+    useEffect(() => {
+        const timer = setTimeout(() => setShowSvg(true), 1000);
+        return () => clearTimeout(timer);
+    }, []);
+
     return (
         <section 
             id="hero" 
@@ -131,7 +137,7 @@ export default function Hero() {
             />
 
             {/* Floating Contextual Elements */}
-            <FloatingElement xOffset={smoothX} yOffset={smoothY} zDepth={120} top="20%" left="15%" delay={0.2}>
+            {/* <FloatingElement xOffset={smoothX} yOffset={smoothY} zDepth={120} top="20%" left="15%" delay={0.2}>
                 <FileText size={45} color='var(--primary)' />
             </FloatingElement>
             <FloatingElement xOffset={smoothX} yOffset={smoothY} zDepth={-80} top="5%" left="75%" delay={1.2}>
@@ -139,7 +145,7 @@ export default function Hero() {
             </FloatingElement>
             <FloatingElement xOffset={smoothX} yOffset={smoothY} zDepth={60} top="70%" left="8%" delay={0.8}>
                 <MdOutlineGroups size={45} color='var(--primary)' />
-            </FloatingElement>
+            </FloatingElement> */}
 
             {/* Central 3D Platform */}
             <motion.div 
@@ -158,19 +164,29 @@ export default function Hero() {
                     className='flex flex-col items-center text-center gap-4 sm:gap-6 bg-white/40 backdrop-blur-3xl p-6 sm:p-10 md:p-16 rounded-[2rem] sm:rounded-[40px] shadow-2xl border border-white/60'
                 >
                     {/* 3D SVG Element */}
-                    <SVG3D
-                        svg={mySvg}
-                        depth={0.9}
-                        smoothness={0.6}
-                        color="#2ecc76"
-                        animate="spinFloat"
-                        animateSpeed={0.9}
-                    />
+                    <div className="flex items-center justify-center" style={{ height: '120px' }}>
+                        {showSvg && (
+                            <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                                transition={{ duration: 0.4 }}
+                                >
+                                <SVG3D
+                                    svg={mySvg}
+                                    depth={0.9}
+                                    smoothness={0.6}
+                                    color="#2ecc76"
+                                    animate="spinFloat"
+                                    animateSpeed={0.9}
+                                />
+                            </motion.div>
+                        )}
+                    </div>
                     
                     <motion.div style={{ transform: "translateZ(80px)" }} className="relative">
                         <h2 className="font-extrabold text-4xl sm:text-5xl md:text-7xl leading-tight">
                             دليلك الشامل <br />
-                            <span className="bg-clip-text text-transparent bg-gradient-to-l from-primary to-secondary">
+                            <span className="bg-clip-text text-transparent bg-linear-to-l from-primary to-secondary">
                                 لمشاويرك الحكومية
                             </span>
                         </h2>
