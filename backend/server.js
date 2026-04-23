@@ -7,7 +7,7 @@ import categoriesRoutes from "./routes/categories.js";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const port = Number(process.env.PORT || 3000);
 
 app.use(express.json());
 
@@ -15,7 +15,18 @@ app.use("/auth", authRoutes);
 app.use("/services", servicesRoutes);
 app.use("/categories", categoriesRoutes);
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT} 🚀`);
+app.get("/", (req, res) => {
+  res.json({ message: "Daleel API is running" });
 });
 
+app.use((req, res) => {
+  res.status(404).json({ error: "Route not found" });
+});
+
+if (!process.env.VERCEL) {
+  app.listen(port, () => {
+    console.log(`Server running on http://localhost:${port}`);
+  });
+}
+
+export default app;
