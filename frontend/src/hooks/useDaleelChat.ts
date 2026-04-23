@@ -1,14 +1,35 @@
 import { useState } from "react";
 import { API_BASE } from "@/config/api";
-import { useStaticResponses } from './useStaticResponses';
+import { useStaticResponses } from "./useStaticResponses";
 
 export interface DaleelServiceData {
   service: string;
   category: string;
+  description?: string | null;
   steps: string[];
   documents: string[];
+  channels?: string[];
+  fees?: string | null;
+  duration?: string | null;
+  authority?: string | null;
+  website?: string | null;
+  online?: boolean;
   confidence?: number;
   language?: string;
+}
+
+interface ChatApiResponse {
+  answer: string;
+  confidence: number;
+  matchedType: string;
+  service: DaleelServiceData | null;
+  reference?: {
+    label?: string;
+    number?: string | null;
+    website?: string | null;
+    text?: string;
+  } | null;
+  suggestions?: string[];
 }
 
 export interface Message {
@@ -19,14 +40,13 @@ export interface Message {
   data?: DaleelServiceData;
 }
 
-// Main hook
 export function useDaleelChat() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
       sender: "bot",
-      text: "أهلاً بك في دليل! 👋\nاسألني عن أي خدمة حكومية مصرية وهساعدك.",
-      timestamp: new Date()
+      text: "أهلاً بك في دليل! 👋\nاسألني عن أي خدمة حكومية مصرية وسأساعدك بالمعلومات المتاحة من قاعدة البيانات.",
+      timestamp: new Date(),
     },
   ]);
   const [loading, setLoading] = useState(false);
@@ -37,68 +57,71 @@ export function useDaleelChat() {
   const sendMessage = async (userText: string) => {
     if (!userText.trim()) return;
 
-    // 1. Add user message to chat
-    const userMessage: Message = { id: Date.now(), sender: "user", text: userText, timestamp: new Date() };
+    const userMessage: Message = {
+      id: Date.now(),
+      sender: "user",
+      text: userText,
+      timestamp: new Date(),
+    };
+
     setMessages((prev) => [...prev, userMessage]);
     setLoading(true);
     setError(null);
 
-    // 2. Check for static/greeting responses first
     const staticReply = checkStaticResponse(userText);
     if (staticReply) {
       setTimeout(() => {
         setMessages((prev) => [
           ...prev,
-          { id: Date.now() + 1, sender: "bot", text: staticReply, timestamp: new Date() },
+          {
+            id: Date.now() + 1,
+            sender: "bot",
+            text: staticReply,
+            timestamp: new Date(),
+          },
         ]);
         setLoading(false);
-      }, 500); // Simulate bot typing delay
+      }, 500);
       return;
     }
 
-    // 3. Call the API
     try {
-      const res = await fetch(
-        `${API_BASE}/service?query=${encodeURIComponent(userText)}`,
-        { method: "POST" }
-      );
+      const res = await fetch(`${API_BASE}/chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message: userText }),
+      });
 
-      if (!res.ok) throw new Error("Server error");
-
-      const data = await res.json();
-
-      // 4. Format the response
-      let replyText;
-      let serviceData: DaleelServiceData | undefined;
-      if (!data) {
-        replyText =
-          "عذراً، مش لاقي معلومات عن الخدمة دي. 🤔\nحاول تسأل بطريقة تانية أو اذكر اسم الخدمة بشكل أوضح.\nمثال: \"عايز استخرج بطاقة رقم قومي\"";
-      } else {
-        serviceData = data;
-        const steps = data.steps && Array.isArray(data.steps) ? data.steps.map((s: string, i: number) => `${i + 1}. ${s}`).join("\n") : "";
-        const docs = data.documents && Array.isArray(data.documents) ? data.documents.join("\n• ") : "";
-
-        replyText = `✅ *${data.service}*`;
-        if (data.category) replyText += `\n📂 القسم: ${data.category}\n`;
-        if (steps) replyText += `\n📋 *الخطوات:*\n${steps}\n`;
-        if (docs) replyText += `\n📄 *المستندات المطلوبة:*\n• ${docs}`;
-
-        replyText = replyText.trim();
+      if (!res.ok) {
+        throw new Error("Server error");
       }
 
-      setMessages((prev) => [
-        ...prev,
-        { id: Date.now() + 1, sender: "bot", text: replyText, timestamp: new Date(), data: serviceData },
-      ]);
-    } catch (err) {
-      setError("تعذر الاتصال بالخادم. تحقق من اتصالك بالإنترنت.");
+      const data: ChatApiResponse = await res.json();
+      const replyText =
+        data?.answer?.trim() ||
+        "عذرًا، لم أستطع تكوين رد واضح من البيانات الحالية.";
+
       setMessages((prev) => [
         ...prev,
         {
           id: Date.now() + 1,
           sender: "bot",
-          text: "⚠️ فيه مشكلة في الاتصال، حاول تاني كمان شوية.",
-          timestamp: new Date()
+          text: replyText,
+          timestamp: new Date(),
+          data: data.service || undefined,
+        },
+      ]);
+    } catch (err) {
+      setError("تعذر الاتصال بخادم دليل. تحقق من تشغيل الباك أو إعداد رابط الـ API.");
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + 1,
+          sender: "bot",
+          text: "⚠️ حدثت مشكلة أثناء الاتصال بخادم دليل. حاول مرة أخرى بعد التأكد من تشغيل الباك.",
+          timestamp: new Date(),
         },
       ]);
     } finally {

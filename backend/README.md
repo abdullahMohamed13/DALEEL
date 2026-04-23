@@ -1,222 +1,92 @@
-# Daleel Auth Login API
+# Daleel Backend
 
-Backend API for the Daleel project built with Express and Supabase.
+Express backend for Daleel with Supabase auth, services APIs, categories APIs, and the chatbot logic.
 
-## Project Overview
-
-This project provides authentication and service-related endpoints for the Daleel app.
-
-The API currently includes:
-
-- user signup
-- user login
-- getting the currently logged-in user
-- listing services
-- listing the authenticated user's services
-- creating, updating, and deleting services
-- listing categories
-
-## Current Project Structure
-
-- `server.js`
-  Main Express app and route registration.
-- `routes/auth.js`
-  Authentication endpoints.
-- `routes/services.js`
-  Services endpoints and request normalization.
-- `routes/categories.js`
-  Categories endpoint.
-- `middleware/auth.js`
-  Bearer token validation using Supabase Auth.
-- `supabaseClient.js`
-  Base Supabase client and request-scoped authenticated client.
-- `data/fallbackData.js`
-  Sample fallback data for services and categories.
-- `supabase/setup.sql`
-  SQL setup for categories, seed data, and RLS policies.
-
-## Fixes Applied
-
-The repository had a few structural and runtime issues. These were fixed as follows:
-
-- fixed protected routes so authenticated requests use the logged-in user's token with Supabase
-- fixed `DELETE /services/:id`, which was incorrectly nested inside the update route
-- added a real `GET /categories` route
-- connected `/categories` in the main server
-- improved validation in `signup` and `login`
-- improved route-level error messages
-- added local server startup while keeping Vercel compatibility
-- added fallback sample data so empty or missing tables do not break public reads
-- documented the required Supabase SQL setup
-
-## Current API Behavior
-
-### Auth
+## Current Features
 
 - `POST /auth/signup`
-  Creates a new user in Supabase Auth.
 - `POST /auth/login`
-  Logs in the user and returns the session with `access_token`.
 - `GET /auth/me`
-  Returns the authenticated user.
-
-### Services
-
 - `GET /services`
-  Returns data from the `services` table if available.
-  If the table is empty, it returns fallback sample data.
 - `GET /services/my-services`
-  Requires a token.
-  Returns the authenticated view of services.
 - `POST /services`
-  Requires a token.
-  Accepts `name` or `title`, plus `description`, `price`, and optional `image_url`.
 - `PUT /services/:id`
-  Requires a token.
-  Updates allowed service fields.
 - `DELETE /services/:id`
-  Requires a token.
-  Deletes a service by id.
-
-### Categories
-
 - `GET /categories`
-  Returns data from the `categories` table if available.
-  If the table does not exist or is empty, it returns fallback sample data.
+- `GET /chat`
+- `POST /chat`
 
-## Current Supabase State
+## Chatbot
 
-The connected Supabase project currently exposes a `services` table with these working columns:
+The chatbot now runs fully inside the backend.
 
-- `id`
-- `name`
-- `description`
-- `price`
-- `image_url`
-- `created_at`
+It uses:
 
-Important notes about the current database state:
+- dataset file: `data/egypt_government_services.json`
+- retrieval layer: `lib/chatDataset.js`
+- answer generation layer: `lib/chatService.js`
+- Groq optional enhancement through `GROQ_API_KEY`
 
-- the `categories` table is not available yet
-- the `services` table is publicly readable, but currently empty
-- authenticated writes to `services` are blocked by Supabase row-level security unless the SQL setup is applied
-
-Because of that, the API now handles the current state safely:
-
-- public reads do not fail when tables are empty or missing
-- protected service writes return a clear message when blocked by Supabase policies
-
-## Required Supabase Setup
-
-Run the SQL in [supabase/setup.sql](C:/Users/pc/Documents/Codex/2026-04-23-https-github-com-abdullahMohamed13-daleel/repo/backend/supabase/setup.sql) inside the Supabase SQL editor.
-
-That script will:
-
-- create the `categories` table if it does not exist
-- seed categories data
-- seed services data when the table is empty
-- allow public read access for services and categories
-- allow authenticated insert, update, and delete for services
-
-## Authentication
-
-Protected endpoints require:
-
-```http
-Authorization: Bearer <access_token>
-```
-
-Use the `access_token` returned from `POST /auth/login`.
-
-Protected endpoints:
-
-- `GET /auth/me`
-- `GET /services/my-services`
-- `POST /services`
-- `PUT /services/:id`
-- `DELETE /services/:id`
+If Groq is not configured, the chatbot still works using local retrieval and deterministic answers from the dataset.
 
 ## Environment Variables
 
-Create a `.env` file based on `.env.example`:
+Create a local `.env` file from `.env.example`.
+
+Required:
 
 ```env
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_ANON_KEY=your-supabase-anon-key
+PORT=3000
 ```
 
-## Install and Run
+Recommended for chatbot:
+
+```env
+GROQ_API_KEY=your-groq-api-key
+CHAT_MODEL=llama3-70b-8192
+CHAT_TEMPERATURE=0.1
+FRONTEND_ORIGIN=https://your-frontend-domain.vercel.app
+```
+
+For local frontend development you can use:
+
+```env
+FRONTEND_ORIGIN=http://localhost:5173
+```
+
+## Supabase Setup
+
+Run `supabase/setup.sql` in the Supabase SQL editor to:
+
+- create missing tables
+- seed categories and services
+- enable public reads
+- allow authenticated writes on services
+
+## Run Locally
 
 ```bash
 npm install
-npm start
+npm run dev
 ```
 
-Default local server:
+## Deploy
 
-```text
-http://localhost:3000
+The backend is ready for Vercel deployment through `vercel.json`.
+
+Before deploying, make sure these variables are set in Vercel:
+
+- `SUPABASE_URL`
+- `SUPABASE_ANON_KEY`
+- `GROQ_API_KEY` if you want Groq answers
+- `CHAT_MODEL`
+- `CHAT_TEMPERATURE`
+- `FRONTEND_ORIGIN`
+
+After deployment, point the frontend to the backend URL using:
+
+```env
+VITE_API_BASE=https://your-backend-domain.vercel.app
 ```
-
-## Endpoints Summary
-
-### Auth
-
-- `POST /auth/signup`
-- `POST /auth/login`
-- `GET /auth/me`
-
-### Services
-
-- `GET /services`
-- `GET /services/my-services`
-- `POST /services`
-- `PUT /services/:id`
-- `DELETE /services/:id`
-
-### Categories
-
-- `GET /categories`
-
-## Example Requests
-
-### Signup
-
-```bash
-curl -X POST http://localhost:3000/auth/signup \
-  -H "Content-Type: application/json" \
-  -d "{\"email\":\"test@example.com\",\"password\":\"Test123456!\",\"name\":\"Test User\",\"phone\":\"01000000000\"}"
-```
-
-### Login
-
-```bash
-curl -X POST http://localhost:3000/auth/login \
-  -H "Content-Type: application/json" \
-  -d "{\"email\":\"test@example.com\",\"password\":\"Test123456!\"}"
-```
-
-### Get Services
-
-```bash
-curl http://localhost:3000/services
-```
-
-### Create Service
-
-```bash
-curl -X POST http://localhost:3000/services \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <access_token>" \
-  -d "{\"name\":\"Home Cleaning\",\"description\":\"Cleaning service\",\"price\":250,\"image_url\":\"https://example.com/image.jpg\"}"
-```
-
-### Get Categories
-
-```bash
-curl http://localhost:3000/categories
-```
-
-## Deployment
-
-The project is configured for deployment on Vercel using `vercel.json`.

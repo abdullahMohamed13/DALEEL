@@ -1,5 +1,13 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { BotMessageSquare, X, Send, Bot, FileText, ListOrdered, FileCheck } from "lucide-react";
+import {
+  BotMessageSquare,
+  X,
+  Send,
+  Bot,
+  FileText,
+  ListOrdered,
+  FileCheck,
+} from "lucide-react";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,7 +21,6 @@ export default function ChatBot() {
   const inputRef = useRef<HTMLInputElement>(null);
   const chatWindowRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to latest message
   useEffect(() => {
     if (scrollRef.current) {
       requestAnimationFrame(() => {
@@ -22,14 +29,12 @@ export default function ChatBot() {
     }
   }, [messages, isTyping]);
 
-  // Focus input when chat opens
   useEffect(() => {
     if (isOpen && inputRef.current) {
       setTimeout(() => inputRef.current?.focus(), 300);
     }
   }, [isOpen]);
 
-  // Click outside to close
   const handleClickOutside = useCallback((e: MouseEvent) => {
     if (
       chatWindowRef.current &&
@@ -63,16 +68,14 @@ export default function ChatBot() {
     }
   };
 
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString("ar-EG", {
+  const formatTime = (date: Date) =>
+    date.toLocaleTimeString("ar-EG", {
       hour: "2-digit",
       minute: "2-digit",
     });
-  };
 
   return (
     <>
-      {/* Floating Action Button */}
       <AnimatePresence>
         {!isOpen && (
           <motion.div
@@ -92,7 +95,6 @@ export default function ChatBot() {
         )}
       </AnimatePresence>
 
-      {/* Chat Window */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -106,10 +108,12 @@ export default function ChatBot() {
                        bg-white rounded-2xl shadow-2xl border border-gray-100
                        flex flex-col overflow-hidden"
           >
-            {/* Header */}
             <div
               className="flex items-center justify-between px-5 py-4 border-b border-gray-100"
-              style={{ background: "linear-gradient(135deg, var(--primary), var(--secondary))" }}
+              style={{
+                background:
+                  "linear-gradient(135deg, var(--primary), var(--secondary))",
+              }}
             >
               <div className="flex items-center gap-3">
                 <Avatar className="w-10 h-10 border-2 border-white/30">
@@ -119,7 +123,9 @@ export default function ChatBot() {
                   </AvatarFallback>
                 </Avatar>
                 <div className="text-white">
-                  <p className="font-bold text-base leading-tight">مساعد دليل الذكي</p>
+                  <p className="font-bold text-base leading-tight">
+                    مساعد دليل الذكي
+                  </p>
                   <p className="text-xs text-white/70">متصل الآن</p>
                 </div>
               </div>
@@ -133,20 +139,16 @@ export default function ChatBot() {
               </Button>
             </div>
 
-            {/* Messages Area */}
-            <div
-              ref={scrollRef}
-              className="flex-1 overflow-y-auto px-4 py-4"
-            >
+            <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4">
               <div className="flex justify-center mb-5 mt-1">
                 <span className="text-muted-foreground/60 text-[11px] font-medium tracking-wide">
                   {(() => {
                     const hour = new Date().getHours();
-                    if (hour >= 4 && hour < 11) return "صباح الخير ☀️";
-                    if (hour >= 11 && hour < 15) return "يومك جميل 🌤️";
-                    if (hour >= 15 && hour < 18) return "مساء الخير 🌅";
-                    if (hour >= 18 && hour <= 23) return "أمسية سعيدة 🌙";
-                    return "ليلة هادئة 🌌";
+                    if (hour >= 4 && hour < 11) return "صباح الخير";
+                    if (hour >= 11 && hour < 15) return "يومك جميل";
+                    if (hour >= 15 && hour < 18) return "مساء الخير";
+                    if (hour >= 18 && hour <= 23) return "أمسية سعيدة";
+                    return "ليلة هادئة";
                   })()}
                 </span>
               </div>
@@ -157,9 +159,17 @@ export default function ChatBot() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.25 }}
-                    className={`flex ${msg.sender === "user" ? "justify-start" : "justify-end"}`}
+                    className={`flex ${
+                      msg.sender === "user" ? "justify-start" : "justify-end"
+                    }`}
                   >
-                    <div className={`flex gap-2 max-w-[85%] ${msg.sender === "user" ? "flex-row" : "flex-row-reverse"}`}>
+                    <div
+                      className={`flex gap-2 max-w-[85%] ${
+                        msg.sender === "user"
+                          ? "flex-row"
+                          : "flex-row-reverse"
+                      }`}
+                    >
                       {msg.sender === "bot" && (
                         <Avatar className="w-7 h-7 mt-1 shrink-0">
                           <AvatarImage src="/main-logo.svg" alt="Bot" />
@@ -170,27 +180,48 @@ export default function ChatBot() {
                       )}
                       <div>
                         <div
-                          className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${msg.sender === "user"
+                          className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
+                            msg.sender === "user"
                               ? "bg-primary text-white rounded-bl-sm"
                               : "bg-gray-100 text-foreground rounded-br-sm"
-                            }`}
+                          }`}
                         >
                           {msg.data ? (
-                            <div className="flex flex-col gap-3 w-full min-w-[200px] text-right" dir="rtl">
+                            <div
+                              className="flex flex-col gap-3 w-full min-w-[200px] text-right"
+                              dir="rtl"
+                            >
+                              {msg.text ? (
+                                <div className="whitespace-pre-line text-sm leading-relaxed border-b border-primary/10 pb-2">
+                                  {msg.text}
+                                </div>
+                              ) : null}
+
                               <div className="flex items-center gap-2 border-b border-primary/10 pb-2">
                                 <span className="bg-primary/10 text-primary p-1.5 rounded-lg shrink-0">
                                   <FileText className="w-4 h-4" />
                                 </span>
                                 <div>
-                                  <h4 className="font-semibold text-primary text-sm">{msg.data.service}</h4>
-                                  <p className="text-[10px] text-muted-foreground">{msg.data.category}</p>
+                                  <h4 className="font-semibold text-primary text-sm">
+                                    {msg.data.service}
+                                  </h4>
+                                  <p className="text-[10px] text-muted-foreground">
+                                    {msg.data.category}
+                                  </p>
                                 </div>
                               </div>
+
+                              {msg.data.description ? (
+                                <p className="text-xs text-foreground/80">
+                                  {msg.data.description}
+                                </p>
+                              ) : null}
 
                               {msg.data.steps && msg.data.steps.length > 0 && (
                                 <div>
                                   <h5 className="text-xs font-bold text-foreground mb-1.5 flex items-center gap-1">
-                                    <ListOrdered className="w-3.5 h-3.5 text-primary" /> الخطوات
+                                    <ListOrdered className="w-3.5 h-3.5 text-primary" />
+                                    الخطوات
                                   </h5>
                                   <ol className="list-decimal list-inside text-xs space-y-1 text-foreground/80 pr-2">
                                     {msg.data.steps.map((step: string, i: number) => (
@@ -200,27 +231,89 @@ export default function ChatBot() {
                                 </div>
                               )}
 
-                              {msg.data.documents && msg.data.documents.length > 0 && (
+                              {msg.data.documents &&
+                              msg.data.documents.length > 0 ? (
                                 <div className="bg-white rounded-lg p-2.5 shadow-sm border border-gray-100">
                                   <h5 className="text-xs font-bold text-foreground mb-1.5 flex items-center gap-1">
-                                    <FileCheck className="w-3.5 h-3.5 text-green-600" /> المستندات المطلوبة
+                                    <FileCheck className="w-3.5 h-3.5 text-green-600" />
+                                    المستندات المطلوبة
                                   </h5>
                                   <ul className="space-y-1.5 pr-1">
-                                    {msg.data.documents.map((doc: string, i: number) => (
-                                      <li key={i} className="flex items-start gap-1.5 text-xs text-foreground/80">
-                                        <span className="text-green-500 mt-0.5 shrink-0">•</span>
-                                        <span>{doc}</span>
-                                      </li>
-                                    ))}
+                                    {msg.data.documents.map(
+                                      (doc: string, i: number) => (
+                                        <li
+                                          key={i}
+                                          className="flex items-start gap-1.5 text-xs text-foreground/80"
+                                        >
+                                          <span className="text-green-500 mt-0.5 shrink-0">
+                                            •
+                                          </span>
+                                          <span>{doc}</span>
+                                        </li>
+                                      ),
+                                    )}
                                   </ul>
                                 </div>
-                              )}
+                              ) : null}
+
+                              {msg.data.channels &&
+                              msg.data.channels.length > 0 ? (
+                                <div className="bg-white rounded-lg p-2.5 shadow-sm border border-gray-100">
+                                  <h5 className="text-xs font-bold text-foreground mb-1.5">
+                                    قنوات التقديم
+                                  </h5>
+                                  <ul className="space-y-1.5 pr-1">
+                                    {msg.data.channels.map(
+                                      (channel: string, i: number) => (
+                                        <li
+                                          key={i}
+                                          className="flex items-start gap-1.5 text-xs text-foreground/80"
+                                        >
+                                          <span className="text-primary mt-0.5 shrink-0">
+                                            •
+                                          </span>
+                                          <span>{channel}</span>
+                                        </li>
+                                      ),
+                                    )}
+                                  </ul>
+                                </div>
+                              ) : null}
+
+                              {msg.data.fees || msg.data.duration || msg.data.authority ? (
+                                <div className="bg-white rounded-lg p-2.5 shadow-sm border border-gray-100 text-xs text-foreground/80 space-y-1">
+                                  {msg.data.fees ? (
+                                    <p>
+                                      <strong>الرسوم:</strong> {msg.data.fees}
+                                    </p>
+                                  ) : null}
+                                  {msg.data.duration ? (
+                                    <p>
+                                      <strong>المدة:</strong> {msg.data.duration}
+                                    </p>
+                                  ) : null}
+                                  {msg.data.authority ? (
+                                    <p>
+                                      <strong>الجهة:</strong> {msg.data.authority}
+                                    </p>
+                                  ) : null}
+                                  {msg.data.website ? (
+                                    <p>
+                                      <strong>الموقع:</strong> {msg.data.website}
+                                    </p>
+                                  ) : null}
+                                </div>
+                              ) : null}
                             </div>
                           ) : (
                             <div className="whitespace-pre-line">{msg.text}</div>
                           )}
                         </div>
-                        <p className={`text-[10px] text-muted-foreground mt-1 ${msg.sender === "user" ? "text-left" : "text-right"}`}>
+                        <p
+                          className={`text-[10px] text-muted-foreground mt-1 ${
+                            msg.sender === "user" ? "text-left" : "text-right"
+                          }`}
+                        >
                           {formatTime(msg.timestamp)}
                         </p>
                       </div>
@@ -228,7 +321,6 @@ export default function ChatBot() {
                   </motion.div>
                 ))}
 
-                {/* Typing Indicator */}
                 {isTyping && (
                   <motion.div
                     initial={{ opacity: 0 }}
@@ -253,7 +345,6 @@ export default function ChatBot() {
               </div>
             </div>
 
-            {/* Input Area */}
             <div className="px-4 py-3 border-t border-gray-100 bg-gray-50/50">
               <div className="flex gap-2 items-center">
                 <input
