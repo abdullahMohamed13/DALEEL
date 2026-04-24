@@ -87,5 +87,7 @@ npm run dev
 ## Git Workflow
 
 - Work on your own branch
+- Pull the latest changes before starting
 - Do not push directly to `main`
+- Do not use `git push --force`
 - Open a pull request when your part is ready
