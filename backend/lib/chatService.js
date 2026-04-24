@@ -222,30 +222,112 @@ const AMBIGUOUS_TOPIC_CONFIGS = [
     id: "license",
     matchedType: "clarify_license",
     keywords: ["رخصه", "رخصة", "رخصتي"],
+    specificHints: [
+      "قياده",
+      "قيادة",
+      "سياره",
+      "سيارة",
+      "دوليه",
+      "دولية",
+      "مرشد",
+      "سياحي",
+      "سياحية",
+      "بناء",
+      "محل",
+      "مركبه",
+      "مركبة",
+    ],
     followUpPrefix: "رخصة",
     answer:
       "تقصد أي رخصة بالضبط؟ اختر الأقرب، أو اكتب النوع الذي تريده وسأكمل معك.",
-    suggestions: [
-      "استخراج رخصة قيادة لأول مرة",
-      "تجديد رخصة القيادة",
-      "بدل فاقد أو تالف لرخصة القيادة",
-      "رخصة قيادة دولية",
-    ],
+    suggestions: {
+      default: [
+        "استخراج رخصة قيادة لأول مرة",
+        "تجديد رخصة القيادة",
+        "بدل فاقد أو تالف لرخصة القيادة",
+        "رخصة قيادة دولية",
+      ],
+      renewal: [
+        "تجديد رخصة القيادة",
+        "تجديد رخصة السيارة",
+        "رخصة قيادة دولية",
+      ],
+      replacement: [
+        "بدل فاقد أو تالف لرخصة القيادة",
+        "بدل فاقد أو تالف لرخصة السيارة",
+        "رخصة قيادة دولية",
+      ],
+      firstTime: [
+        "استخراج رخصة قيادة لأول مرة",
+        "استخراج رخصة سيارة لأول مرة",
+        "رخصة قيادة دولية",
+      ],
+    },
   },
   {
     id: "card",
     matchedType: "clarify_card",
     keywords: ["بطاقه", "بطاقة"],
+    specificHints: [
+      "قومي",
+      "رقم",
+      "شخصيه",
+      "شخصية",
+      "تموين",
+      "تموينيه",
+      "تموينية",
+      "صحيه",
+      "صحية",
+      "تطعيم",
+      "خدمات",
+      "متكامله",
+      "متكاملة",
+      "ميزة",
+      "بريديه",
+      "بريدية",
+      "ضريبيه",
+      "ضريبية",
+    ],
     followUpPrefix: "بطاقة",
     answer:
       "تقصد أي بطاقة؟ اختر من الاختيارات التالية، أو اكتب النوع الذي تريده بشكل أوضح.",
-    suggestions: [
-      "استخراج بطاقة الرقم القومي لأول مرة",
-      "تجديد بطاقة الرقم القومي",
-      "بدل فاقد أو تالف للبطاقة الشخصية",
-      "إصدار بطاقة تموينية جديدة",
-    ],
+    suggestions: {
+      default: [
+        "استخراج بطاقة الرقم القومي لأول مرة",
+        "تجديد بطاقة الرقم القومي",
+        "بدل فاقد أو تالف للبطاقة الشخصية",
+        "إصدار بطاقة تموينية جديدة",
+      ],
+      renewal: [
+        "تجديد بطاقة الرقم القومي",
+        "بدل فاقد أو تالف للبطاقة الشخصية",
+        "إصدار بطاقة تموينية جديدة",
+      ],
+      replacement: [
+        "بدل فاقد أو تالف للبطاقة الشخصية",
+        "بدل فاقد أو تالف للبطاقة التموينية",
+        "تجديد بطاقة الرقم القومي",
+      ],
+      firstTime: [
+        "استخراج بطاقة الرقم القومي لأول مرة",
+        "إصدار بطاقة تموينية جديدة",
+        "استخراج بطاقة صحية",
+      ],
+    },
   },
+];
+const AMBIGUOUS_ACTION_HINTS = [
+  ...RENEWAL_HINTS,
+  ...FIRST_TIME_HINTS,
+  "استخراج",
+  "استخرج",
+  "بدل",
+  "فاقد",
+  "تالف",
+  "تالفه",
+  "تالفة",
+  "جديده",
+  "جديدة",
 ];
 
 const canonicalizeToken = (token) => {
@@ -321,18 +403,61 @@ const isDaleelAboutQuery = (query) => {
 const includesAnyHint = (normalizedQuery, hints) =>
   hints.some((hint) => normalizedQuery.includes(normalizeArabic(hint)));
 
-const findAmbiguousTopicConfig = (queryTokens) => {
-  if (!queryTokens.length || queryTokens.length > 2) return null;
+const getClarificationSuggestionSet = (config, normalizedQuery) => {
+  const hasRenewalHint = includesAnyHint(normalizedQuery, RENEWAL_HINTS);
+  const hasFirstTimeHint = includesAnyHint(normalizedQuery, FIRST_TIME_HINTS);
+  const hasReplacementHint = includesAnyHint(normalizedQuery, [
+    "بدل",
+    "فاقد",
+    "تالف",
+    "تالفه",
+    "تالفة",
+  ]);
+
+  if (hasReplacementHint) {
+    return config.suggestions.replacement || config.suggestions.default;
+  }
+
+  if (hasRenewalHint) {
+    return config.suggestions.renewal || config.suggestions.default;
+  }
+
+  if (hasFirstTimeHint) {
+    return config.suggestions.firstTime || config.suggestions.default;
+  }
+
+  return config.suggestions.default;
+};
+
+const findAmbiguousTopicConfig = (queryTokens, normalizedQuery) => {
+  if (!queryTokens.length) return null;
 
   return (
-    AMBIGUOUS_TOPIC_CONFIGS.find(({ keywords }) => {
+    AMBIGUOUS_TOPIC_CONFIGS.find(({ keywords, specificHints }) => {
       const normalizedKeywords = keywords.map((keyword) =>
         canonicalizeToken(normalizeArabic(keyword)),
       );
+      const normalizedSpecificHints = (specificHints || []).map((hint) =>
+        canonicalizeToken(normalizeArabic(hint)),
+      );
+      const hasKeyword = queryTokens.some((token) =>
+        normalizedKeywords.includes(token),
+      );
+      const hasSpecificSubtype = queryTokens.some((token) =>
+        normalizedSpecificHints.includes(token),
+      );
+      const allowedModifierTokens = AMBIGUOUS_ACTION_HINTS.map((token) =>
+        canonicalizeToken(normalizeArabic(token)),
+      );
+      const onlyGenericContext = queryTokens.every(
+        (token) =>
+          normalizedKeywords.includes(token) || allowedModifierTokens.includes(token),
+      );
 
       return (
-        queryTokens.some((token) => normalizedKeywords.includes(token)) &&
-        queryTokens.every((token) => normalizedKeywords.includes(token))
+        hasKeyword &&
+        !hasSpecificSubtype &&
+        (onlyGenericContext || queryTokens.length <= 3 || includesAnyHint(normalizedQuery, keywords))
       );
     }) || null
   );
@@ -359,7 +484,7 @@ const buildClarificationAnswer = (config) => ({
   confidence: 0.92,
   service: null,
   reference: null,
-  suggestions: config.suggestions,
+  suggestions: config.suggestions.default || [],
 });
 
 const resolveClarificationAwareMessage = (message, history = []) => {
@@ -1028,11 +1153,18 @@ export const generateChatReply = async (message, options = {}) => {
 
   const normalizedQuery = normalizeArabic(clarificationAwareMessage);
   const queryTokens = uniqueValues(tokenize(clarificationAwareMessage));
-  const ambiguousTopicConfig = findAmbiguousTopicConfig(queryTokens);
+  const ambiguousTopicConfig = findAmbiguousTopicConfig(
+    queryTokens,
+    normalizedQuery,
+  );
 
   if (ambiguousTopicConfig) {
     return {
       ...buildClarificationAnswer(ambiguousTopicConfig),
+      suggestions: getClarificationSuggestionSet(
+        ambiguousTopicConfig,
+        normalizedQuery,
+      ),
       usedGroq: false,
       provider: "local_fallback",
       statusMessage: "Response generated from clarification rules.",
