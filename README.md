@@ -36,6 +36,7 @@ The chatbot uses:
 - retrieval logic inside `backend/lib/chatDataset.js` and `backend/lib/chatService.js`
 - optional Groq enhancement through `GROQ_API_KEY`
 - JSON-mode style response handling in the backend before sending data to the frontend
+- session-based chat history plus clarification prompts and quick reply suggestions
 
 If `GROQ_API_KEY` is missing, the chatbot still works with deterministic retrieval from the local dataset.
 
@@ -60,8 +61,8 @@ SUPABASE_URL=your_supabase_url
 SUPABASE_ANON_KEY=your_supabase_anon_key
 PORT=3000
 GROQ_API_KEY=your_groq_api_key
-CHAT_MODEL=llama3-70b-8192
-CHAT_TEMPERATURE=0.1
+CHAT_MODEL=llama-3.3-70b-versatile
+CHAT_TEMPERATURE=0.6
 FRONTEND_ORIGIN=http://localhost:5173
 ```
 
