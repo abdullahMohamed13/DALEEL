@@ -1,139 +1,93 @@
-# 🤝 Contributing to Daleel
+# Daleel
 
-Welcome to the Daleel project! This guide explains how each team member should set up their environment and safely push their work. Please read it fully before touching anything.
+Daleel is a multi-part project for Egyptian government services.
 
----
+## Current Structure
 
-<!-- ## 📁 Project Structure
-
-```
+```text
 DALEEL/
-├── frontend/     → Marketing website & web app (React + TypeScript)
-├── backend/      → API & server logic
-├── ai/           → AI models & integrations
-└── mobile/       → Mobile application
-``` -->
-
-Each team works **only inside their folder**, on **their own branch**. Do not touch other folders.
-
----
-
-<!-- ## 🌿 Branch Map
-
-| Team       | Branch     | Folder      |
-|------------|------------|-------------|
-| Frontend   | `feat/frontend` | `frontend/` |
-| Backend    | `feat/backend`  | `backend/`  |
-| AI         | `feat/ai`       | `ai/`       |
-| Mobile     | `feat/mobile`   | `mobile/`   | -->
-
-> ⚠️ **Never push directly to `main`.** Only the project owner merges into `main` via Pull Requests.
-
----
-
-## 🚀 Getting Started
-
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/abdullahMohamed13/DALEEL.git
-cd DALEEL
+|- frontend/   React web app and chatbot UI
+|- backend/    Express API, auth, services, categories, and chatbot logic
+|- mobile/     Mobile app workspace
 ```
 
-### 2. Switch to your branch
+The chatbot logic now lives inside `backend/`. The old standalone `ai/` service is no longer part of the project flow.
 
-```bash
-# Backend team
-git checkout feat/backend
+## Backend Summary
 
-# AI team
-git checkout feat/ai
+The backend currently provides:
 
-# Mobile team
-git checkout feat/mobile
+- `POST /auth/signup`
+- `POST /auth/login`
+- `GET /auth/me`
+- `GET /services`
+- `POST /services`
+- `PUT /services/:id`
+- `DELETE /services/:id`
+- `GET /categories`
+- `GET /chat`
+- `POST /chat`
+
+### Chatbot
+
+The chatbot uses:
+
+- local dataset in `backend/data/egypt_government_services.json`
+- retrieval logic inside `backend/lib/chatDataset.js` and `backend/lib/chatService.js`
+- optional Groq enhancement through `GROQ_API_KEY`
+- JSON-mode style response handling in the backend before sending data to the frontend
+- session-based chat history plus clarification prompts and quick reply suggestions
+
+If `GROQ_API_KEY` is missing, the chatbot still works with deterministic retrieval from the local dataset.
+
+## Frontend Summary
+
+The frontend chatbot sends requests to the backend instead of the old external AI endpoint. Set:
+
+```env
+VITE_API_BASE=http://localhost:3000
 ```
 
-### 3. Confirm you're on the right branch
+or your deployed backend URL.
 
-```bash
-git branch
-# The active branch will have a * next to it
+## Backend Environment
+
+Create `backend/.env` from `backend/.env.example`.
+
+Example:
+
+```env
+SUPABASE_URL=your_supabase_url
+SUPABASE_ANON_KEY=your_supabase_anon_key
+PORT=3000
+GROQ_API_KEY=your_groq_api_key
+CHAT_MODEL=llama-3.3-70b-versatile
+CHAT_TEMPERATURE=0.6
+FRONTEND_ORIGIN=http://localhost:5173
 ```
 
----
+## Running Locally
 
-## 📅 Daily Workflow
-
-Follow these steps **every time** you want to push your work.
-
-### Step 1 — Pull the latest changes first (before starting work)
+Backend:
 
 ```bash
-git pull origin <your-branch>
-# Example: git pull origin feat/backend
+cd backend
+npm install
+npm run dev
 ```
 
-> Always do this before starting to avoid conflicts.
-
-### Step 2 — Do your work inside your folder only
-
-Make sure all your files are inside your designated folder (e.g., `backend/`). Do not create files at the root level or inside another team's folder.
-
-### Step 3 — Pushing your changes
+Frontend:
 
 ```bash
-git add .
-git commit -m "feat: short description of what you did"
-git push origin <your-branch>
-# Example: git push origin feat/backend
+cd frontend
+npm install
+npm run dev
 ```
 
----
+## Git Workflow
 
-## 🔁 Requesting a Merge into Main
-
-When your work is ready and tested:
-
-1. Go to the repo on GitHub: [github.com/abdullahMohamed13/DALEEL](https://github.com/abdullahMohamed13/DALEEL)
-2. Click **Pull Requests** → **New Pull Request**
-3. Set **base:** `main` ← **compare:** `your-branch`
-4. Write a short description of what's included
-5. Submit — the project owner will review and merge
-
----
-
-## ⚠️ Golden Rules
-
-- ✅ Always work on **your branch only**
-- ✅ Always `git pull` before starting
-- ✅ Only push files inside **your folder**
-- ❌ Never push to `main`
-- ❌ Never edit another team's folder
-- ❌ Never force push (`git push --force`)
-
----
-
-## 🆘 Common Issue
-
-**"I have a merge conflict"**
-```bash
-# Pull first
-git pull origin <your-branch>
-# Git will show the conflicting files — open them, resolve manually, then:
-git add .
-git commit -m "fix: resolve merge conflict"
-git push origin <your-branch>
-```
-
-**"I made changes but forgot to pull first"**
-```bash
-git stash          # temporarily save your changes
-git pull origin <your-branch>
-git stash pop      # bring your changes back
-```
-
----
-
-## 📬 Questions?
-
-Reach out to **Abdallah**.
+- Work on your own branch
+- Pull the latest changes before starting
+- Do not push directly to `main`
+- Do not use `git push --force`
+- Open a pull request when your part is ready

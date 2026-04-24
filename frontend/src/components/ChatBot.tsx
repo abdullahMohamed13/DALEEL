@@ -61,6 +61,11 @@ export default function ChatBot() {
     setInput("");
   };
 
+  const handleSuggestionClick = (suggestion: string) => {
+    if (!suggestion.trim() || isTyping) return;
+    sendMessage(suggestion);
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -73,6 +78,26 @@ export default function ChatBot() {
       hour: "2-digit",
       minute: "2-digit",
     });
+
+  const formatDateLabel = (date: Date) => {
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+
+    const sameDay = (a: Date, b: Date) =>
+      a.getDate() === b.getDate() &&
+      a.getMonth() === b.getMonth() &&
+      a.getFullYear() === b.getFullYear();
+
+    if (sameDay(date, today)) return "اليوم";
+    if (sameDay(date, yesterday)) return "أمس";
+
+    return date.toLocaleDateString("ar-EG", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
 
   return (
     <>
@@ -153,172 +178,201 @@ export default function ChatBot() {
                 </span>
               </div>
               <div className="flex flex-col gap-3">
-                {messages.map((msg) => (
-                  <motion.div
-                    key={msg.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.25 }}
-                    className={`flex ${
-                      msg.sender === "user" ? "justify-start" : "justify-end"
-                    }`}
-                  >
-                    <div
-                      className={`flex gap-2 max-w-[85%] ${
-                        msg.sender === "user"
-                          ? "flex-row"
-                          : "flex-row-reverse"
+                {messages.map((msg, index) => (
+                  <div key={msg.id}>
+                    {(index === 0 ||
+                      new Date(messages[index - 1].timestamp).toDateString() !==
+                        new Date(msg.timestamp).toDateString()) && (
+                      <div className="flex justify-center my-1">
+                        <span className="px-2.5 py-1 rounded-full bg-gray-100 text-[10px] text-muted-foreground">
+                          {formatDateLabel(new Date(msg.timestamp))}
+                        </span>
+                      </div>
+                    )}
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.25 }}
+                      className={`flex ${
+                        msg.sender === "user" ? "justify-start" : "justify-end"
                       }`}
                     >
-                      {msg.sender === "bot" && (
-                        <Avatar className="w-7 h-7 mt-1 shrink-0">
-                          <AvatarImage src="/main-logo.svg" alt="Bot" />
-                          <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                            <Bot className="w-4 h-4" />
-                          </AvatarFallback>
-                        </Avatar>
-                      )}
-                      <div>
-                        <div
-                          className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
-                            msg.sender === "user"
-                              ? "bg-primary text-white rounded-bl-sm"
-                              : "bg-gray-100 text-foreground rounded-br-sm"
-                          }`}
-                        >
-                          {msg.data ? (
-                            <div
-                              className="flex flex-col gap-3 w-full min-w-[200px] text-right"
-                              dir="rtl"
-                            >
-                              {msg.text ? (
-                                <div className="whitespace-pre-line text-sm leading-relaxed border-b border-primary/10 pb-2">
-                                  {msg.text}
-                                </div>
-                              ) : null}
+                      <div
+                        className={`flex gap-2 max-w-[85%] ${
+                          msg.sender === "user"
+                            ? "flex-row"
+                            : "flex-row-reverse"
+                        }`}
+                      >
+                        {msg.sender === "bot" && (
+                          <Avatar className="w-7 h-7 mt-1 shrink-0">
+                            <AvatarImage src="/main-logo.svg" alt="Bot" />
+                            <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                              <Bot className="w-4 h-4" />
+                            </AvatarFallback>
+                          </Avatar>
+                        )}
+                        <div>
+                          <div
+                            className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
+                              msg.sender === "user"
+                                ? "bg-primary text-white rounded-bl-sm"
+                                : "bg-gray-100 text-foreground rounded-br-sm"
+                            }`}
+                          >
+                            {msg.data ? (
+                              <div
+                                className="flex flex-col gap-3 w-full min-w-[200px] text-right"
+                                dir="rtl"
+                              >
+                                {msg.text ? (
+                                  <div className="whitespace-pre-line text-sm leading-relaxed border-b border-primary/10 pb-2">
+                                    {msg.text}
+                                  </div>
+                                ) : null}
 
-                              <div className="flex items-center gap-2 border-b border-primary/10 pb-2">
-                                <span className="bg-primary/10 text-primary p-1.5 rounded-lg shrink-0">
-                                  <FileText className="w-4 h-4" />
-                                </span>
-                                <div>
-                                  <h4 className="font-semibold text-primary text-sm">
-                                    {msg.data.service}
-                                  </h4>
-                                  <p className="text-[10px] text-muted-foreground">
-                                    {msg.data.category}
+                                <div className="flex items-center gap-2 border-b border-primary/10 pb-2">
+                                  <span className="bg-primary/10 text-primary p-1.5 rounded-lg shrink-0">
+                                    <FileText className="w-4 h-4" />
+                                  </span>
+                                  <div>
+                                    <h4 className="font-semibold text-primary text-sm">
+                                      {msg.data.service}
+                                    </h4>
+                                    <p className="text-[10px] text-muted-foreground">
+                                      {msg.data.category}
+                                    </p>
+                                  </div>
+                                </div>
+
+                                {msg.data.description ? (
+                                  <p className="text-xs text-foreground/80">
+                                    {msg.data.description}
                                   </p>
-                                </div>
+                                ) : null}
+
+                                {msg.data.steps && msg.data.steps.length > 0 && (
+                                  <div>
+                                    <h5 className="text-xs font-bold text-foreground mb-1.5 flex items-center gap-1">
+                                      <ListOrdered className="w-3.5 h-3.5 text-primary" />
+                                      الخطوات
+                                    </h5>
+                                    <ol className="list-decimal list-inside text-xs space-y-1 text-foreground/80 pr-2">
+                                      {msg.data.steps.map((step: string, i: number) => (
+                                        <li key={i}>{step}</li>
+                                      ))}
+                                    </ol>
+                                  </div>
+                                )}
+
+                                {msg.data.documents &&
+                                msg.data.documents.length > 0 ? (
+                                  <div className="bg-white rounded-lg p-2.5 shadow-sm border border-gray-100">
+                                    <h5 className="text-xs font-bold text-foreground mb-1.5 flex items-center gap-1">
+                                      <FileCheck className="w-3.5 h-3.5 text-green-600" />
+                                      المستندات المطلوبة
+                                    </h5>
+                                    <ul className="space-y-1.5 pr-1">
+                                      {msg.data.documents.map(
+                                        (doc: string, i: number) => (
+                                          <li
+                                            key={i}
+                                            className="flex items-start gap-1.5 text-xs text-foreground/80"
+                                          >
+                                            <span className="text-green-500 mt-0.5 shrink-0">
+                                              •
+                                            </span>
+                                            <span>{doc}</span>
+                                          </li>
+                                        ),
+                                      )}
+                                    </ul>
+                                  </div>
+                                ) : null}
+
+                                {msg.data.channels &&
+                                msg.data.channels.length > 0 ? (
+                                  <div className="bg-white rounded-lg p-2.5 shadow-sm border border-gray-100">
+                                    <h5 className="text-xs font-bold text-foreground mb-1.5">
+                                      قنوات التقديم
+                                    </h5>
+                                    <ul className="space-y-1.5 pr-1">
+                                      {msg.data.channels.map(
+                                        (channel: string, i: number) => (
+                                          <li
+                                            key={i}
+                                            className="flex items-start gap-1.5 text-xs text-foreground/80"
+                                          >
+                                            <span className="text-primary mt-0.5 shrink-0">
+                                              •
+                                            </span>
+                                            <span>{channel}</span>
+                                          </li>
+                                        ),
+                                      )}
+                                    </ul>
+                                  </div>
+                                ) : null}
+
+                                {msg.data.fees || msg.data.duration || msg.data.authority ? (
+                                  <div className="bg-white rounded-lg p-2.5 shadow-sm border border-gray-100 text-xs text-foreground/80 space-y-1">
+                                    {msg.data.fees ? (
+                                      <p>
+                                        <strong>الرسوم:</strong> {msg.data.fees}
+                                      </p>
+                                    ) : null}
+                                    {msg.data.duration ? (
+                                      <p>
+                                        <strong>المدة:</strong> {msg.data.duration}
+                                      </p>
+                                    ) : null}
+                                    {msg.data.authority ? (
+                                      <p>
+                                        <strong>الجهة:</strong> {msg.data.authority}
+                                      </p>
+                                    ) : null}
+                                    {msg.data.website ? (
+                                      <p>
+                                        <strong>الموقع:</strong> {msg.data.website}
+                                      </p>
+                                    ) : null}
+                                  </div>
+                                ) : null}
                               </div>
+                            ) : (
+                              <div className="whitespace-pre-line">{msg.text}</div>
+                            )}
+                          </div>
 
-                              {msg.data.description ? (
-                                <p className="text-xs text-foreground/80">
-                                  {msg.data.description}
-                                </p>
-                              ) : null}
-
-                              {msg.data.steps && msg.data.steps.length > 0 && (
-                                <div>
-                                  <h5 className="text-xs font-bold text-foreground mb-1.5 flex items-center gap-1">
-                                    <ListOrdered className="w-3.5 h-3.5 text-primary" />
-                                    الخطوات
-                                  </h5>
-                                  <ol className="list-decimal list-inside text-xs space-y-1 text-foreground/80 pr-2">
-                                    {msg.data.steps.map((step: string, i: number) => (
-                                      <li key={i}>{step}</li>
-                                    ))}
-                                  </ol>
-                                </div>
-                              )}
-
-                              {msg.data.documents &&
-                              msg.data.documents.length > 0 ? (
-                                <div className="bg-white rounded-lg p-2.5 shadow-sm border border-gray-100">
-                                  <h5 className="text-xs font-bold text-foreground mb-1.5 flex items-center gap-1">
-                                    <FileCheck className="w-3.5 h-3.5 text-green-600" />
-                                    المستندات المطلوبة
-                                  </h5>
-                                  <ul className="space-y-1.5 pr-1">
-                                    {msg.data.documents.map(
-                                      (doc: string, i: number) => (
-                                        <li
-                                          key={i}
-                                          className="flex items-start gap-1.5 text-xs text-foreground/80"
-                                        >
-                                          <span className="text-green-500 mt-0.5 shrink-0">
-                                            •
-                                          </span>
-                                          <span>{doc}</span>
-                                        </li>
-                                      ),
-                                    )}
-                                  </ul>
-                                </div>
-                              ) : null}
-
-                              {msg.data.channels &&
-                              msg.data.channels.length > 0 ? (
-                                <div className="bg-white rounded-lg p-2.5 shadow-sm border border-gray-100">
-                                  <h5 className="text-xs font-bold text-foreground mb-1.5">
-                                    قنوات التقديم
-                                  </h5>
-                                  <ul className="space-y-1.5 pr-1">
-                                    {msg.data.channels.map(
-                                      (channel: string, i: number) => (
-                                        <li
-                                          key={i}
-                                          className="flex items-start gap-1.5 text-xs text-foreground/80"
-                                        >
-                                          <span className="text-primary mt-0.5 shrink-0">
-                                            •
-                                          </span>
-                                          <span>{channel}</span>
-                                        </li>
-                                      ),
-                                    )}
-                                  </ul>
-                                </div>
-                              ) : null}
-
-                              {msg.data.fees || msg.data.duration || msg.data.authority ? (
-                                <div className="bg-white rounded-lg p-2.5 shadow-sm border border-gray-100 text-xs text-foreground/80 space-y-1">
-                                  {msg.data.fees ? (
-                                    <p>
-                                      <strong>الرسوم:</strong> {msg.data.fees}
-                                    </p>
-                                  ) : null}
-                                  {msg.data.duration ? (
-                                    <p>
-                                      <strong>المدة:</strong> {msg.data.duration}
-                                    </p>
-                                  ) : null}
-                                  {msg.data.authority ? (
-                                    <p>
-                                      <strong>الجهة:</strong> {msg.data.authority}
-                                    </p>
-                                  ) : null}
-                                  {msg.data.website ? (
-                                    <p>
-                                      <strong>الموقع:</strong> {msg.data.website}
-                                    </p>
-                                  ) : null}
-                                </div>
-                              ) : null}
+                          {msg.sender === "bot" &&
+                          msg.suggestions &&
+                          msg.suggestions.length > 0 ? (
+                            <div className="flex flex-wrap gap-2 mt-2 max-w-[320px]">
+                              {msg.suggestions.map((suggestion) => (
+                                <button
+                                  key={`${msg.id}-${suggestion}`}
+                                  type="button"
+                                  onClick={() => handleSuggestionClick(suggestion)}
+                                  disabled={isTyping}
+                                  className="rounded-full border border-primary/20 bg-white px-3 py-1.5 text-xs text-primary transition-colors hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                  {suggestion}
+                                </button>
+                              ))}
                             </div>
-                          ) : (
-                            <div className="whitespace-pre-line">{msg.text}</div>
-                          )}
+                          ) : null}
+
+                          <p
+                            className={`text-[10px] text-muted-foreground mt-1 ${
+                              msg.sender === "user" ? "text-left" : "text-right"
+                            }`}
+                          >
+                            {formatTime(msg.timestamp)}
+                          </p>
                         </div>
-                        <p
-                          className={`text-[10px] text-muted-foreground mt-1 ${
-                            msg.sender === "user" ? "text-left" : "text-right"
-                          }`}
-                        >
-                          {formatTime(msg.timestamp)}
-                        </p>
                       </div>
-                    </div>
-                  </motion.div>
+                    </motion.div>
+                  </div>
                 ))}
 
                 {isTyping && (
@@ -354,7 +408,7 @@ export default function ChatBot() {
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="اكتب رسالتك"
-                  className="flex-1 bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm 
+                  className="flex-1 bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm
                              focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50
                              placeholder:text-muted-foreground/60 transition-shadow"
                   disabled={isTyping}

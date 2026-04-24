@@ -26,11 +26,37 @@ const SERVICE_HINTS = [
   "جواز",
   "رخصه",
   "رخصة",
+  "رخصتي",
   "تجديد",
+  "اجدد",
+  "منتهيه",
+  "منتهية",
   "استخراج",
   "بدل",
   "فاقد",
 ];
+const SEMANTIC_EQUIVALENTS = {
+  تجديد: ["منتهيه", "منتهية", "اجدد", "جدد"],
+  منتهيه: ["تجديد", "اجدد"],
+  منتهية: ["تجديد", "اجدد"],
+  فاقد: ["بدل", "تالف"],
+  تالف: ["بدل", "فاقد"],
+  بدل: ["فاقد", "تالف"],
+  رخصه: ["رخصة", "مرور"],
+  رخصة: ["رخصه", "مرور"],
+  مرور: ["رخصه", "رخصة"],
+  جواز: ["سفر"],
+  سفر: ["جواز"],
+  شهاده: ["شهادة", "ميلاد", "وفاه", "وفاة"],
+  شهادة: ["شهاده", "ميلاد", "وفاه", "وفاة"],
+  ميلاد: ["شهاده", "شهادة"],
+  وفاه: ["شهاده", "شهادة"],
+  وفاة: ["شهاده", "شهادة"],
+  بطاقه: ["بطاقة", "رقم", "قومي"],
+  بطاقة: ["بطاقه", "رقم", "قومي"],
+  قومي: ["بطاقه", "بطاقة", "رقم"],
+  تموين: ["بطاقه", "بطاقة", "دعم"],
+};
 const STOP_WORDS = new Set([
   "عايز",
   "اريد",
@@ -49,6 +75,178 @@ const STOP_WORDS = new Set([
   "الى",
   "او",
 ]);
+const DALEEL_PROFILE = {
+  name: "دليل",
+  englishName: "Daleel",
+  tagline: "رفيقك الذكي في المعاملات والرحلات الحكومية.",
+  mission:
+    "منصة ومساعد ذكي للمواطن المصري لتبسيط الإجراءات الحكومية وتقليل المشاوير والوقت الضائع.",
+  vision:
+    "تقديم مرجع موثوق وموحد للإجراءات الحكومية والخدمية في مصر يعتمد على بيانات منظمة وتجارب واقعية.",
+  positioning:
+    "منصة مجتمعية تجمع بين الدليل الإجرائي المنظم والتحقق المجتمعي والذكاء الاصطناعي.",
+  coverageSummary:
+    "تغطي خدمات حكومية وخدمية متعددة عبر عشرات التصنيفات مع تركيز على الإجراءات الواقعية التي تحتاج زيارات فعلية.",
+  whatWeDo: [
+    "توفير معلومات الخدمات الحكومية بشكل واضح ومباشر.",
+    "عرض المستندات المطلوبة وخطوات التنفيذ والجهة المسؤولة.",
+    "مساعدة المستخدم على الوصول للجهات الحكومية بدقة.",
+    "تجميع خبرات المجتمع لتبادل النصائح والتجارب العملية.",
+  ],
+  differentiators: [
+    "محتوى قائم على تجارب مستخدمين حقيقية وليس وصفًا نظريًا فقط.",
+    "نظام تحقق مجتمعي (تصويت/تقييم) لتحسين الموثوقية.",
+    "تنظيم المعلومات في شكل قابل للبحث والتصفية بسهولة.",
+    "دمج الخرائط لتوجيه المستخدم للجهة الصحيحة وتقليل إهدار الوقت.",
+    "مساعد ذكي يبسّط الإجراءات ويشرحها بلغة واضحة.",
+  ],
+  valueProposition:
+    "بدل الحيرة والتنقل بين مصادر غير واضحة، دليل يجمع لك المعلومات الحكومية المهمة في مكان واحد وبصياغة بسيطة.",
+  support: {
+    email: "daleel.support.csi@gmail.com",
+    phone: "+201010434465",
+    location: "مصر، الجيزة، مدينة السادس من أكتوبر",
+    linkedin: "https://www.linkedin.com/company/daleel-eg-csi",
+  },
+  appHighlights: [
+    "مساعد ذكي للإجابة الفورية عن الإجراءات والأوراق.",
+    "عرض المستندات والخطوات والرسوم المتوقعة حسب الخدمة.",
+    "محتوى مجتمعي لمشاركة التجارب وتحديثات الطريق.",
+    "تجربة استخدام بسيطة وسريعة داخل التطبيق.",
+  ],
+};
+const CHAT_BRAND_TONE = (process.env.CHAT_BRAND_TONE || "professional")
+  .toLowerCase()
+  .trim();
+const TONE_INSTRUCTION_MAP = {
+  professional:
+    "Tone: professional, polished, service-oriented, and reassuring.",
+  friendly: "Tone: friendly, warm, empathetic, and supportive.",
+  concise: "Tone: concise, direct, and practical with minimal wording.",
+};
+const DALEEL_ABOUT_HINTS = [
+  "الويبسايت",
+  "الموقع",
+  "site",
+  "website",
+  "about",
+  "who are you",
+  "مين انتم",
+  "من انتم",
+  "مين انتو",
+  "انتوا مين",
+  "مين انت",
+  "من انت",
+  "اسمكم",
+  "بتعملوا ايه",
+  "بتقدمو ايه",
+  "نبذه",
+  "تعريف",
+  "عنكم",
+];
+const ABOUT_WITH_NAME_HINTS = [
+  "مين",
+  "من",
+  "تعريف",
+  "نبذه",
+  "بتعملوا",
+  "بتقدمو",
+  "خدمه",
+  "رسالتكم",
+];
+const GREETING_HINTS = [
+  "اهلا",
+  "اهلين",
+  "مرحبا",
+  "هاي",
+  "hi",
+  "hello",
+  "hey",
+  "good morning",
+  "good evening",
+  "ازيك",
+  "ازيك",
+  "عامل ايه",
+  "كيف حالك",
+  "السلام عليكم",
+  "صباح الخير",
+  "مساء الخير",
+];
+const THANKS_HINTS = ["شكرا", "شكراً", "thanks", "thank you", "تسلم", "ميرسي"];
+const GOODBYE_HINTS = ["مع السلامه", "سلام", "باي", "goodbye", "bye"];
+const HELP_HINTS = ["ساعدني", "مساعده", "help", "مش عارف", "اعمل ايه"];
+const OFF_TOPIC_HINTS = [
+  "كوره",
+  "كرة",
+  "مباراه",
+  "movie",
+  "فيلم",
+  "اغنيه",
+  "طبخ",
+  "برمجه",
+  "code",
+  "crypto",
+  "بورصه",
+  "weather",
+  "طقس",
+];
+const CUSTOM_PERSON_RESPONSES = [
+  {
+    aliases: ["عبدالله"],
+    answer: "عبدالله الجلنف",
+  },
+  {
+    aliases: ["عماد"],
+    answer: "عماد حرنكش",
+  },
+  {
+    aliases: ["مصطفى", "سمعه"],
+    answer: "صبي عبدالعزيز",
+  },
+  {
+    aliases: ["عبدالعزيز", "عبعزيز"],
+    answers: ["السبيشيال ون ☝", "عم دليل"],
+  },
+];
+const RENEWAL_HINTS = ["تجديد", "اجدد", "جدد", "تجدد", "منتهيه", "منتهية"];
+const FIRST_TIME_HINTS = ["اول مره", "لاول مره", "اول مرة", "لأول مرة", "first time"];
+const CORRECTION_HINTS = ["لا", "مش", "مش دي", "مش ده", "قصدي", "اقصد"];
+const STRONG_MATCH_SCORE = 95;
+const GOOD_MATCH_SCORE = 50;
+const CONTACT_MATCH_SCORE = 40;
+const TOP_CATEGORIES = [...new Set(CHAT_DATASET.services.map((item) => item.category))]
+  .filter(Boolean)
+  .slice(0, 6);
+const AMBIGUOUS_TOPIC_CONFIGS = [
+  {
+    id: "license",
+    matchedType: "clarify_license",
+    keywords: ["رخصه", "رخصة", "رخصتي"],
+    followUpPrefix: "رخصة",
+    answer:
+      "تقصد أي رخصة بالضبط؟ اختر الأقرب، أو اكتب النوع الذي تريده وسأكمل معك.",
+    suggestions: [
+      "استخراج رخصة قيادة لأول مرة",
+      "تجديد رخصة القيادة",
+      "بدل فاقد أو تالف لرخصة القيادة",
+      "رخصة قيادة دولية",
+    ],
+  },
+  {
+    id: "card",
+    matchedType: "clarify_card",
+    keywords: ["بطاقه", "بطاقة"],
+    followUpPrefix: "بطاقة",
+    answer:
+      "تقصد أي بطاقة؟ اختر من الاختيارات التالية، أو اكتب النوع الذي تريده بشكل أوضح.",
+    suggestions: [
+      "استخراج بطاقة الرقم القومي لأول مرة",
+      "تجديد بطاقة الرقم القومي",
+      "بدل فاقد أو تالف للبطاقة الشخصية",
+      "إصدار بطاقة تموينية جديدة",
+    ],
+  },
+];
 
 const canonicalizeToken = (token) => {
   if (!token) return token;
@@ -79,6 +277,14 @@ const tokenize = (value) =>
     .map((token) => canonicalizeToken(token))
     .filter((token) => token.length > 1 && !STOP_WORDS.has(token));
 
+const uniqueValues = (items) => [...new Set(items.filter(Boolean))];
+
+const getSemanticVariants = (tokens) =>
+  [...new Set(tokens)]
+    .flatMap((token) => SEMANTIC_EQUIVALENTS[token] || [])
+    .map((token) => canonicalizeToken(normalizeArabic(token)))
+    .filter(Boolean);
+
 const entryTokenCache = new Map();
 
 const getEntryTokens = (entry) => {
@@ -97,9 +303,166 @@ const isContactLikeQuery = (normalizedQuery, queryTokens) =>
 const isServiceLikeQuery = (normalizedQuery) =>
   SERVICE_HINTS.some((hint) => normalizedQuery.includes(normalizeArabic(hint)));
 
+const isDaleelAboutQuery = (query) => {
+  const normalized = normalizeArabic(query);
+  const hasDirectAboutHint = DALEEL_ABOUT_HINTS.some((hint) =>
+    normalized.includes(normalizeArabic(hint)),
+  );
+  if (hasDirectAboutHint) return true;
+
+  const mentionsName = normalized.includes("دليل") || normalized.includes("daleel");
+  const hasAboutWithName = ABOUT_WITH_NAME_HINTS.some((hint) =>
+    normalized.includes(normalizeArabic(hint)),
+  );
+
+  return mentionsName && hasAboutWithName;
+};
+
+const includesAnyHint = (normalizedQuery, hints) =>
+  hints.some((hint) => normalizedQuery.includes(normalizeArabic(hint)));
+
+const findAmbiguousTopicConfig = (queryTokens) => {
+  if (!queryTokens.length || queryTokens.length > 2) return null;
+
+  return (
+    AMBIGUOUS_TOPIC_CONFIGS.find(({ keywords }) => {
+      const normalizedKeywords = keywords.map((keyword) =>
+        canonicalizeToken(normalizeArabic(keyword)),
+      );
+
+      return (
+        queryTokens.some((token) => normalizedKeywords.includes(token)) &&
+        queryTokens.every((token) => normalizedKeywords.includes(token))
+      );
+    }) || null
+  );
+};
+
+const getLastAssistantClarification = (history = []) => {
+  const assistantEntries = history.filter((item) => item.role === "assistant");
+  const lastAssistantEntry = assistantEntries[assistantEntries.length - 1];
+
+  if (!lastAssistantEntry?.matchedType) {
+    return null;
+  }
+
+  return (
+    AMBIGUOUS_TOPIC_CONFIGS.find(
+      ({ matchedType }) => matchedType === lastAssistantEntry.matchedType,
+    ) || null
+  );
+};
+
+const buildClarificationAnswer = (config) => ({
+  answer: config.answer,
+  matchedType: config.matchedType,
+  confidence: 0.92,
+  service: null,
+  reference: null,
+  suggestions: config.suggestions,
+});
+
+const resolveClarificationAwareMessage = (message, history = []) => {
+  const normalizedMessage = normalizeArabic(message);
+  const queryTokens = uniqueValues(tokenize(message));
+  const clarificationConfig = getLastAssistantClarification(history);
+
+  if (!clarificationConfig) {
+    return message;
+  }
+
+  const normalizedKeywords = clarificationConfig.keywords.map((keyword) =>
+    canonicalizeToken(normalizeArabic(keyword)),
+  );
+  const alreadyMentionsTopic = queryTokens.some((token) =>
+    normalizedKeywords.includes(token),
+  );
+
+  if (alreadyMentionsTopic || queryTokens.length === 0 || queryTokens.length > 3) {
+    return message;
+  }
+
+  const correctionOnly =
+    queryTokens.length === 1 && includesAnyHint(normalizedMessage, CORRECTION_HINTS);
+
+  if (correctionOnly) {
+    return message;
+  }
+
+  return `${clarificationConfig.followUpPrefix} ${message}`.trim();
+};
+
+const getCustomPersonAnswer = (query) => {
+  const normalizedQuery = normalizeArabic(query);
+
+  if (!normalizedQuery) return null;
+
+  const askingWho =
+    normalizedQuery.includes("مين") ||
+    normalizedQuery.includes("من") ||
+    normalizedQuery.startsWith("هو ") ||
+    normalizedQuery.startsWith("ايه ");
+
+  for (const item of CUSTOM_PERSON_RESPONSES) {
+    const hasAlias = item.aliases.some((alias) =>
+      normalizedQuery.includes(normalizeArabic(alias)),
+    );
+
+    if (hasAlias && askingWho) {
+      const selectedAnswer = Array.isArray(item.answers)
+        ? item.answers[Math.floor(Math.random() * item.answers.length)]
+        : item.answer;
+
+      return {
+        answer: selectedAnswer,
+        matchedType: "custom_person",
+        confidence: 0.99,
+        service: null,
+        reference: null,
+        suggestions: [],
+      };
+    }
+  }
+
+  return null;
+};
+
+const detectIntent = (query, normalizedQuery, queryTokens, topMatch) => {
+  if (includesAnyHint(normalizedQuery, GREETING_HINTS)) return "greeting";
+  if (includesAnyHint(normalizedQuery, THANKS_HINTS)) return "thanks";
+  if (includesAnyHint(normalizedQuery, GOODBYE_HINTS)) return "goodbye";
+  if (includesAnyHint(normalizedQuery, HELP_HINTS)) return "help";
+  if (isDaleelAboutQuery(query)) return "about_daleel";
+
+  const contactLike = isContactLikeQuery(normalizedQuery, queryTokens);
+  const serviceLike = isServiceLikeQuery(normalizedQuery);
+
+  if (contactLike && !serviceLike) return "contact_lookup";
+  if (serviceLike) return "service_lookup";
+
+  if (topMatch?.entry?.type === "service" && topMatch.score >= GOOD_MATCH_SCORE) {
+    return "service_lookup";
+  }
+  if (
+    (topMatch?.entry?.type === "contact" || topMatch?.entry?.type === "platform") &&
+    topMatch.score >= CONTACT_MATCH_SCORE
+  ) {
+    return "contact_lookup";
+  }
+
+  if (includesAnyHint(normalizedQuery, OFF_TOPIC_HINTS)) {
+    return "off_topic";
+  }
+
+  return "general";
+};
+
 const scoreEntry = (query, entry) => {
   const normalizedQuery = normalizeArabic(query);
   const queryTokens = [...new Set(tokenize(query))];
+  const semanticQueryTokens = getSemanticVariants(queryTokens).filter(
+    (token) => !queryTokens.includes(token),
+  );
   const entryTokens = getEntryTokens(entry);
   const entryText = normalizeArabic(entry.searchText);
   const primaryLabel = normalizeArabic(
@@ -142,8 +505,25 @@ const scoreEntry = (query, entry) => {
     }
   }
 
+  let semanticMatches = 0;
+
+  for (const token of semanticQueryTokens) {
+    if (entryTokens.includes(token)) {
+      semanticMatches += 1;
+      score += token.length >= 4 ? 10 : 5;
+
+      if (labelTokens.includes(token)) {
+        score += token.length >= 4 ? 8 : 4;
+      }
+    }
+  }
+
   if (queryTokens.length > 0) {
     score += Math.round((matchedTokens / queryTokens.length) * 60);
+  }
+
+  if (semanticQueryTokens.length > 0) {
+    score += Math.round((semanticMatches / semanticQueryTokens.length) * 24);
   }
 
   if (queryTokens.length > 1 && queryTokens.every((token) => entryTokens.includes(token))) {
@@ -186,11 +566,209 @@ const retrieveMatches = (query, limit = 5) =>
     .sort((a, b) => b.score - a.score)
     .slice(0, limit);
 
+const refineMatchesWithIntentSignals = (query, matches, history = []) => {
+  const normalizedQuery = normalizeArabic(query);
+  const hasRenewalHint = includesAnyHint(normalizedQuery, RENEWAL_HINTS);
+  const hasFirstTimeHint = includesAnyHint(normalizedQuery, FIRST_TIME_HINTS);
+  const hasCorrectionHint = includesAnyHint(normalizedQuery, CORRECTION_HINTS);
+  const lastHistoryText = normalizeArabic(
+    history
+      .slice(-3)
+      .map((item) => item.content)
+      .join(" "),
+  );
+  const likelyCorrectionTurn =
+    hasCorrectionHint || (normalizedQuery.includes("لا") && lastHistoryText.length > 0);
+
+  return [...matches]
+    .map((item) => {
+      const serviceName = normalizeArabic(item.entry?.service || "");
+      let score = item.score;
+
+      if (item.entry?.type === "service") {
+        const isRenewalService = serviceName.includes("تجديد");
+        const isFirstTimeService =
+          serviceName.includes("لاول مره") || serviceName.includes("اول مره");
+
+        if (hasRenewalHint) {
+          score += isRenewalService ? 80 : 0;
+          score -= isFirstTimeService ? 70 : 0;
+        }
+
+        if (hasFirstTimeHint && !hasRenewalHint) {
+          score += isFirstTimeService ? 80 : 0;
+          score -= isRenewalService ? 55 : 0;
+        }
+
+        if (likelyCorrectionTurn && hasRenewalHint && isFirstTimeService) {
+          score -= 90;
+        }
+
+        if (likelyCorrectionTurn && hasFirstTimeHint && isRenewalService) {
+          score -= 90;
+        }
+      }
+
+      return {
+        ...item,
+        score,
+      };
+    })
+    .sort((a, b) => b.score - a.score);
+};
+
+const pickPreferredTopMatch = (query, matches) => {
+  if (!matches?.length) return null;
+
+  const normalizedQuery = normalizeArabic(query);
+  const hasRenewalHint = includesAnyHint(normalizedQuery, RENEWAL_HINTS);
+  const hasFirstTimeHint = includesAnyHint(normalizedQuery, FIRST_TIME_HINTS);
+
+  const findServiceByKeyword = (keyword) =>
+    matches.find(
+      ({ entry, score }) =>
+        entry?.type === "service" &&
+        normalizeArabic(entry.service || "").includes(normalizeArabic(keyword)) &&
+        score >= CONTACT_MATCH_SCORE,
+    );
+
+  if (hasRenewalHint) {
+    const renewalCandidate = findServiceByKeyword("تجديد");
+    if (renewalCandidate) return renewalCandidate;
+  }
+
+  if (hasFirstTimeHint && !hasRenewalHint) {
+    const firstTimeCandidate = matches.find(
+      ({ entry, score }) =>
+        entry?.type === "service" &&
+        (normalizeArabic(entry.service || "").includes("لاول مره") ||
+          normalizeArabic(entry.service || "").includes("اول مره")) &&
+        score >= CONTACT_MATCH_SCORE,
+    );
+    if (firstTimeCandidate) return firstTimeCandidate;
+  }
+
+  return matches[0];
+};
+
 const getFallbackSuggestions = (matches) =>
   matches
     .map(({ entry }) => entry.service || entry.label || entry.text)
     .filter(Boolean)
     .slice(1, 4);
+
+const buildIntentFallbackAnswer = (intent, message) => {
+  if (intent === "greeting") {
+    return {
+      answer:
+        "أهلًا بك في دليل. يسعدني مساعدتك في أي استفسار عام، أو في أي خدمة حكومية مثل الأوراق المطلوبة والخطوات والجهة المختصة.",
+      matchedType: "greeting",
+      confidence: 0.9,
+      service: null,
+      reference: null,
+      suggestions: [
+        "مثال: ما الأوراق المطلوبة لتجديد بطاقة الرقم القومي؟",
+        "مثال: عايز رقم الخط الساخن للمرور",
+      ],
+    };
+  }
+
+  if (intent === "thanks") {
+    return {
+      answer: "العفو، تحت أمرك في أي وقت. لو تحب نكمل، اكتب اسم الخدمة التي تريدها وسأرتبها لك خطوة بخطوة.",
+      matchedType: "thanks",
+      confidence: 0.95,
+      service: null,
+      reference: null,
+      suggestions: ["مثال: إجراءات تجديد جواز السفر", "مثال: المطلوب لاستخراج شهادة ميلاد"],
+    };
+  }
+
+  if (intent === "goodbye") {
+    return {
+      answer: "تشرفت بمساعدتك. في أي وقت تحتاج استفسار حكومي، أنا موجود.",
+      matchedType: "goodbye",
+      confidence: 0.95,
+      service: null,
+      reference: null,
+      suggestions: [],
+    };
+  }
+
+  if (intent === "help") {
+    return {
+      answer: [
+        "أكيد. أقدر أساعدك في:",
+        "- المستندات المطلوبة لأي معاملة حكومية.",
+        "- خطوات التنفيذ والجهة المسؤولة.",
+        "- الرسوم والمدة المتوقعة وقنوات التقديم.",
+        "- أرقام التواصل والمنصات الرسمية.",
+      ].join("\n"),
+      matchedType: "help",
+      confidence: 0.9,
+      service: null,
+      reference: null,
+      suggestions: [
+        "مثال: ما المطلوب لاستخراج بطاقة رقم قومي لأول مرة؟",
+        "مثال: رقم النجدة أو الإسعاف",
+      ],
+    };
+  }
+
+  if (intent === "off_topic") {
+    return {
+      answer:
+        "أقدر أجاوبك بشكل عام، لكن أفضل مساعدة دقيقة أقدمها لك هي في الخدمات الحكومية المصرية. لو تحب، اكتب اسم الخدمة أو الجهة وسأعطيك المطلوب خطوة بخطوة.",
+      matchedType: "off_topic",
+      confidence: 0.75,
+      service: null,
+      reference: null,
+      suggestions: [
+        "مثال: ما المطلوب لتجديد رخصة القيادة؟",
+        "مثال: رقم الخط الساخن للنجدة أو الإسعاف",
+      ],
+    };
+  }
+
+  if (intent === "about_daleel" || isDaleelAboutQuery(message)) {
+    return {
+      answer: [
+        `نحن ${DALEEL_PROFILE.name} (${DALEEL_PROFILE.englishName})، ${DALEEL_PROFILE.tagline}`,
+        DALEEL_PROFILE.mission,
+        `رؤيتنا: ${DALEEL_PROFILE.vision}`,
+        `من نحن: ${DALEEL_PROFILE.positioning}`,
+        `نطاق المنصة: ${DALEEL_PROFILE.coverageSummary}`,
+        `ماذا نقدم:`,
+        ...DALEEL_PROFILE.whatWeDo.map((item) => `- ${item}`),
+        `ما يميزنا:`,
+        ...DALEEL_PROFILE.differentiators.map((item) => `- ${item}`),
+        `باختصار: ${DALEEL_PROFILE.valueProposition}`,
+        `التواصل: ${DALEEL_PROFILE.support.email} | ${DALEEL_PROFILE.support.phone}`,
+      ].join("\n"),
+      matchedType: "about_daleel",
+      confidence: 0.95,
+      service: null,
+      reference: { text: DALEEL_PROFILE.mission },
+      suggestions: [
+        "اسألني عن خدمة حكومية محددة مثل تجديد البطاقة.",
+        "اسألني عن الأوراق المطلوبة لأي معاملة حكومية.",
+      ],
+    };
+  }
+
+  return {
+    answer:
+      "أقدر أساعدك في الأسئلة العامة، وكمان في الخدمات الحكومية المصرية من قاعدة البيانات المحلية. لو تريد نتيجة أدق، اكتب اسم الخدمة أو الجهة بشكل مباشر.",
+    matchedType: "general",
+    confidence: 0.7,
+    service: null,
+    reference: null,
+    suggestions: [
+      "مثال: ما الأوراق المطلوبة لاستخراج بطاقة رقم قومي؟",
+      `من التصنيفات المتاحة: ${TOP_CATEGORIES.slice(0, 3).join("، ")}`,
+    ],
+  };
+};
 
 const buildServicePayload = (entry, confidence) => ({
   name: entry.service,
@@ -305,8 +883,8 @@ const buildDeterministicAnswer = (entry, confidence) => {
   };
 };
 
-const buildGroqPrompt = (message, matches, deterministic) => {
-  const context = matches.map(({ entry, score }) => ({
+const buildGroqPrompt = (message, matches, deterministic, intent, history = []) => {
+  const context = matches.slice(0, 5).map(({ entry, score }) => ({
     score,
     type: entry.type,
     service: entry.service || null,
@@ -323,38 +901,73 @@ const buildGroqPrompt = (message, matches, deterministic) => {
     authority: entry.authority || null,
     text: entry.text || null,
   }));
+  const compactHistory = history.slice(-6).map((item) => ({
+    role: item.role,
+    content: item.content,
+  }));
+  const referenceContext =
+    context.length > 0
+      ? JSON.stringify(context, null, 2)
+      : "لا توجد معلومات مرجعية قوية لهذا السؤال.";
+  const historyContext =
+    compactHistory.length > 0
+      ? JSON.stringify(compactHistory, null, 2)
+      : "لا يوجد سجل سابق مهم.";
 
   return {
     system: `
-You are Daleel, an assistant for Egyptian government services.
-Use only the provided context.
-Do not invent facts.
-Respond in Arabic unless the user message is clearly English.
-Return a valid JSON object with this exact schema:
+أنت "دليل"، مساعد ذكي تفاعلي للمواطن المصري.
+تتصرف كمساعد محادثة قوي ومرن: ذكي في الأسئلة العامة، ودقيق جدًا في الإجراءات الحكومية.
+${TONE_INSTRUCTION_MAP[CHAT_BRAND_TONE] || TONE_INSTRUCTION_MAP.professional}
+القاعدة الذهبية:
+إذا كان سؤال المستخدم عن خدمة حكومية أو أوراق أو رسوم أو خطوات أو جهة رسمية، اعتمد أولًا على المعلومات المرجعية المرفقة.
+إذا كان السؤال عامًا أو دردشة أو معرفة عامة، أجب بذكاء وبطلاقة من معرفتك العامة دون أن تتقيد بالداتا.
+لا تؤلف أبدًا تفاصيل حكومية أو رسومًا أو أوراقًا أو روابط رسمية غير موجودة في المعلومات المرجعية.
+إذا كانت المعلومات المرجعية غير كافية لسؤال حكومي محدد، قل ذلك بوضوح واسأل سؤالًا توضيحيًا واحدًا فقط.
+إذا صحح المستخدم قصده، فالأولوية للتصحيح الأخير.
+إذا سأل المستخدم عن "دليل" نفسه أو المنصة، استخدم ملف التعريف المرفق.
+إذا وجدت معلومات مرجعية قوية، فرتب الإجابة عمليًا هكذا:
+1) اسم الخدمة أو الإجراء
+2) المستندات المطلوبة
+3) الخطوات أو قنوات التقديم
+4) الرسوم والمدة إن وجدت
+5) ملاحظة مفيدة قصيرة
+أجب دائمًا بالعربية حتى لو كان السؤال بالإنجليزية.
+أعد دائمًا JSON صحيحًا بهذا الشكل فقط:
 {
   "answer": "string",
   "suggestions": ["string", "string"]
 }
-Keep the answer concise, factual, and tied to the dataset.
+اجعل الإجابة طبيعية ومختصرة ومفيدة، وليس أسلوبًا آليًا جافًا.
     `.trim(),
-    user: JSON.stringify(
-      {
-        user_message: message,
-        deterministic_answer: deterministic.answer,
-        context,
-      },
-      null,
-      2,
-    ),
+    user: `
+[ملف تعريف دليل]:
+${JSON.stringify(DALEEL_PROFILE, null, 2)}
+
+[نية السؤال المتوقعة]:
+${intent}
+
+[المعلومات المرجعية المرتبطة]:
+${referenceContext}
+
+[إجابة محلية مقترحة من نظام الاسترجاع]:
+${deterministic.answer}
+
+[سجل محادثة مختصر]:
+${historyContext}
+
+[سؤال المستخدم]:
+${message}
+    `.trim(),
   };
 };
 
-const requestGroqJson = async (message, matches, deterministic) => {
+const requestGroqJson = async (message, matches, deterministic, intent, history = []) => {
   if (!process.env.GROQ_API_KEY) {
     return null;
   }
 
-  const prompt = buildGroqPrompt(message, matches, deterministic);
+  const prompt = buildGroqPrompt(message, matches, deterministic, intent, history);
   const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -362,8 +975,8 @@ const requestGroqJson = async (message, matches, deterministic) => {
       Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
     },
     body: JSON.stringify({
-      model: process.env.CHAT_MODEL || "llama3-70b-8192",
-      temperature: Number(process.env.CHAT_TEMPERATURE || 0.1),
+      model: process.env.CHAT_MODEL || "llama-3.3-70b-versatile",
+      temperature: Number(process.env.CHAT_TEMPERATURE || 0.6),
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: prompt.system },
@@ -396,25 +1009,79 @@ const requestGroqJson = async (message, matches, deterministic) => {
   };
 };
 
-export const generateChatReply = async (message) => {
-  const matches = retrieveMatches(message);
-  const topMatch = matches[0] || null;
+export const generateChatReply = async (message, options = {}) => {
+  const history = Array.isArray(options.history) ? options.history : [];
+  const clarificationAwareMessage = resolveClarificationAwareMessage(
+    message,
+    history,
+  );
+  const customPersonAnswer = getCustomPersonAnswer(message);
+
+  if (customPersonAnswer) {
+    return {
+      ...customPersonAnswer,
+      usedGroq: false,
+      provider: "local_fallback",
+      statusMessage: "Response generated from custom local response rules.",
+    };
+  }
+
+  const normalizedQuery = normalizeArabic(clarificationAwareMessage);
+  const queryTokens = uniqueValues(tokenize(clarificationAwareMessage));
+  const ambiguousTopicConfig = findAmbiguousTopicConfig(queryTokens);
+
+  if (ambiguousTopicConfig) {
+    return {
+      ...buildClarificationAnswer(ambiguousTopicConfig),
+      usedGroq: false,
+      provider: "local_fallback",
+      statusMessage: "Response generated from clarification rules.",
+    };
+  }
+
+  const baseMatches = retrieveMatches(clarificationAwareMessage);
+  const matches = refineMatchesWithIntentSignals(
+    clarificationAwareMessage,
+    baseMatches,
+    history,
+  );
+  const topMatch = pickPreferredTopMatch(clarificationAwareMessage, matches);
+  const intent = detectIntent(
+    clarificationAwareMessage,
+    normalizedQuery,
+    queryTokens,
+    topMatch,
+  );
+  const hasStrongMatch = Boolean(topMatch && topMatch.score >= STRONG_MATCH_SCORE);
+  const hasGoodMatch = Boolean(topMatch && topMatch.score >= GOOD_MATCH_SCORE);
+  const hasContactMatch = Boolean(topMatch && topMatch.score >= CONTACT_MATCH_SCORE);
+  const shouldUseDatasetAnswer =
+    (intent === "service_lookup" && (hasStrongMatch || hasGoodMatch)) ||
+    (intent === "contact_lookup" && hasContactMatch) ||
+    (intent === "general" && hasStrongMatch);
   const confidence = topMatch
     ? Number(Math.min(0.99, topMatch.score / 220).toFixed(2))
     : 0;
 
-  const deterministic = buildDeterministicAnswer(
-    topMatch?.entry || null,
-    confidence,
-  );
+  const deterministic = shouldUseDatasetAnswer
+    ? buildDeterministicAnswer(topMatch?.entry || null, confidence)
+    : buildIntentFallbackAnswer(intent, message);
 
   deterministic.suggestions =
     deterministic.suggestions.length > 0
       ? deterministic.suggestions
       : getFallbackSuggestions(matches);
 
+  const promptMatches = shouldUseDatasetAnswer ? matches : [];
+
   try {
-    const groqJson = await requestGroqJson(message, matches, deterministic);
+    const groqJson = await requestGroqJson(
+      clarificationAwareMessage,
+      promptMatches,
+      deterministic,
+      intent,
+      history,
+    );
 
     if (groqJson?.answer) {
       return {
@@ -425,12 +1092,17 @@ export const generateChatReply = async (message) => {
             ? groqJson.suggestions
             : deterministic.suggestions,
         usedGroq: true,
+        provider: "groq",
+        statusMessage: "Response generated by Groq model.",
       };
     }
   } catch (error) {
     return {
       ...deterministic,
       usedGroq: false,
+      provider: "local_fallback",
+      statusMessage:
+        "Groq is unavailable; response generated from local retrieval fallback.",
       debug: error.message,
     };
   }
@@ -438,5 +1110,8 @@ export const generateChatReply = async (message) => {
   return {
     ...deterministic,
     usedGroq: false,
+    provider: "local_fallback",
+    statusMessage:
+      "Groq did not return usable output; response generated from local retrieval fallback.",
   };
 };

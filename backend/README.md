@@ -25,9 +25,15 @@ It uses:
 - dataset file: `data/egypt_government_services.json`
 - retrieval layer: `lib/chatDataset.js`
 - answer generation layer: `lib/chatService.js`
+- history storage layer: `lib/chatHistoryStore.js`
 - Groq optional enhancement through `GROQ_API_KEY`
+- clarification prompts for broad requests like `رخصة` or `بطاقة`
+- quick reply suggestions returned to the frontend for disambiguation
 
 If Groq is not configured, the chatbot still works using local retrieval and deterministic answers from the dataset.
+
+The backend stores chat history by session and automatically deletes messages older
+than 15 days.
 
 ## Environment Variables
 
@@ -45,10 +51,16 @@ Recommended for chatbot:
 
 ```env
 GROQ_API_KEY=your-groq-api-key
-CHAT_MODEL=llama3-70b-8192
-CHAT_TEMPERATURE=0.1
+CHAT_MODEL=llama-3.3-70b-versatile
+CHAT_TEMPERATURE=0.6
+CHAT_BRAND_TONE=professional
 FRONTEND_ORIGIN=https://your-frontend-domain.vercel.app
 ```
+
+`CHAT_BRAND_TONE` supports:
+- `professional` (default)
+- `friendly`
+- `concise`
 
 For local frontend development you can use:
 
@@ -64,6 +76,9 @@ Run `supabase/setup.sql` in the Supabase SQL editor to:
 - seed categories and services
 - enable public reads
 - allow authenticated writes on services
+
+Run `sql/chat_messages.sql` in Supabase SQL editor to create chat history tables
+used by `/chat`.
 
 ## Run Locally
 
@@ -83,6 +98,7 @@ Before deploying, make sure these variables are set in Vercel:
 - `GROQ_API_KEY` if you want Groq answers
 - `CHAT_MODEL`
 - `CHAT_TEMPERATURE`
+- `CHAT_BRAND_TONE`
 - `FRONTEND_ORIGIN`
 
 After deployment, point the frontend to the backend URL using:
