@@ -1,0 +1,1 @@
+export const API_BASE = "https://auth-login-for-daleel1.vercel.app";
