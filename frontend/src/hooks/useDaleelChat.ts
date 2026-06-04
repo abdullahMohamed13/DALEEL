@@ -85,18 +85,25 @@ const CONNECTION_ERROR_REPLY =
   "⚠️ حدثت مشكلة أثناء الاتصال بخادم دليل. حاول مرة أخرى بعد التأكد من تشغيل الباك.";
 
 export function useDaleelChat() {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>([
+    { id: 1, sender: "bot" as const, text: WELCOME_MESSAGE, timestamp: new Date() },
+  ]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [historyLoaded, setHistoryLoaded] = useState(false);
+  const [historyLoaded, setHistoryLoaded] = useState(true);
   const sessionId = useMemo(() => getOrCreateSessionId(), []);
 
   useEffect(() => {
     const loadHistory = async () => {
       try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 10000);
+
         const res = await fetch(
           `${API_BASE}/chat?sessionId=${encodeURIComponent(sessionId)}`,
+          { signal: controller.signal },
         );
+        clearTimeout(timeout);
 
         if (!res.ok) throw new Error("Failed to load chat history");
 
@@ -115,25 +122,9 @@ export function useDaleelChat() {
               timestamp: new Date(item.created_at),
             })),
           );
-        } else {
-          setMessages([
-            {
-              id: 1,
-              sender: "bot",
-              text: WELCOME_MESSAGE,
-              timestamp: new Date(),
-            },
-          ]);
         }
       } catch (err) {
-        setMessages([
-          {
-            id: 1,
-            sender: "bot",
-            text: WELCOME_MESSAGE,
-            timestamp: new Date(),
-          },
-        ]);
+        // welcome message already set, nothing to do
       } finally {
         setHistoryLoaded(true);
       }
@@ -157,13 +148,18 @@ export function useDaleelChat() {
     setError(null);
 
     try {
-      const res = await fetch(`${API_BASE}/chat`, {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 15000);
+
+      const res = await fetch(`${API_BASE}/chat/message`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        signal: controller.signal,
         body: JSON.stringify({ message: userText, sessionId }),
       });
+      clearTimeout(timeout);
 
       if (!res.ok) {
         throw new Error("Server error");
