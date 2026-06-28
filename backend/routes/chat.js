@@ -11,13 +11,28 @@ const DEFAULT_HISTORY_LIMIT = 12;
 
 const extractMessage = (req) =>
   req.body?.message || req.body?.query || req.query?.message || req.query?.query;
+
 const extractSessionId = (req) =>
   req.body?.sessionId ||
   req.query?.sessionId ||
   req.headers["x-chat-session-id"] ||
   null;
 
-router.post("/", async (req, res) => {
+const mapHistoryRows = (rows) =>
+  rows.map((item) => ({
+    role: item.sender === "user" ? "user" : "assistant",
+    content: item.content,
+    timestamp: item.created_at,
+    matchedType: item.matched_type || null,
+  }));
+
+const buildResponsePayload = (reply, sessionId) => ({
+  ...reply,
+  reply: reply.answer,
+  sessionId,
+});
+
+const handleChatReply = async (req, res) => {
   const message = extractMessage(req);
   const sessionId = extractSessionId(req);
 
@@ -29,14 +44,10 @@ router.post("/", async (req, res) => {
 
   await cleanupOldChatMessages();
   const historyRows = await getRecentChatHistory(sessionId, DEFAULT_HISTORY_LIMIT);
-  const history = historyRows.map((item) => ({
-    role: item.sender === "user" ? "user" : "assistant",
-    content: item.content,
-    timestamp: item.created_at,
-    matchedType: item.matched_type || null,
-  }));
+  const reply = await generateChatReply(safeMessage, {
+    history: mapHistoryRows(historyRows),
+  });
 
-  const reply = await generateChatReply(safeMessage, { history });
   await saveChatExchange({
     sessionId,
     userMessage: safeMessage,
@@ -45,47 +56,32 @@ router.post("/", async (req, res) => {
     matchedType: reply.matchedType,
   });
 
-  res.json({
-    ...reply,
-    sessionId,
-  });
-});
+  res.json(buildResponsePayload(reply, sessionId));
+};
 
-router.get("/", async (req, res) => {
+const handleChatHistoryOrReply = async (req, res) => {
   const message = extractMessage(req);
   const sessionId = extractSessionId(req);
 
+  await cleanupOldChatMessages();
+
   if (!message || !String(message).trim()) {
-    await cleanupOldChatMessages();
-    const historyRows = await getRecentChatHistory(sessionId, DEFAULT_HISTORY_LIMIT * 2);
+    const historyRows = await getRecentChatHistory(
+      sessionId,
+      DEFAULT_HISTORY_LIMIT * 2,
+    );
     return res.json({
       sessionId,
       messages: historyRows,
     });
   }
 
-  const safeMessage = String(message).trim();
-  await cleanupOldChatMessages();
-  const historyRows = await getRecentChatHistory(sessionId, DEFAULT_HISTORY_LIMIT);
-  const history = historyRows.map((item) => ({
-    role: item.sender === "user" ? "user" : "assistant",
-    content: item.content,
-    timestamp: item.created_at,
-    matchedType: item.matched_type || null,
-  }));
-  const reply = await generateChatReply(safeMessage, { history });
-  await saveChatExchange({
-    sessionId,
-    userMessage: safeMessage,
-    botMessage: reply,
-    provider: reply.provider,
-    matchedType: reply.matchedType,
-  });
+  return handleChatReply(req, res);
+};
 
-  res.json({
-    ...reply,
-    sessionId,
-  });
-});
+router.post("/", handleChatReply);
+router.post("/message", handleChatReply);
+router.get("/", handleChatHistoryOrReply);
+router.get("/message", handleChatHistoryOrReply);
 
 export default router;
