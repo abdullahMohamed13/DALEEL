@@ -11,7 +11,6 @@ DALEEL/
 ├── frontend/     → Marketing website & web app (React + TypeScript)
 ├── backend/      → API & server logic
 ├── ai/           → AI models & integrations
-└── mobile/       → Mobile application
 ``` -->
 
 Each team works **only inside their folder**, on **their own branch**. Do not touch other folders.
@@ -24,8 +23,7 @@ Each team works **only inside their folder**, on **their own branch**. Do not to
 |------------|------------|-------------|
 | Frontend   | `feat/frontend` | `frontend/` |
 | Backend    | `feat/backend`  | `backend/`  |
-| AI         | `feat/ai`       | `ai/`       |
-| Mobile     | `feat/mobile`   | `mobile/`   | -->
+| AI         | `feat/ai`       | `ai/`       | -->
 
 > ⚠️ **Never push directly to `main`.** Only the project owner merges into `main` via Pull Requests.
 
@@ -43,14 +41,11 @@ cd DALEEL
 ### 2. Switch to your branch
 
 ```bash
-# Backend team
+#  team
 git checkout feat/backend
 
 # AI team
 git checkout feat/ai
-
-# Mobile team
-git checkout feat/mobile
 ```
 
 ### 3. Confirm you're on the right branch
